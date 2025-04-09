@@ -1,5 +1,5 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS  
+from flask import Flask, request, jsonify 
+from flask_cors import CORS 
 import re
 
 app = Flask(__name__)
@@ -53,8 +53,14 @@ def login():
     password = data.get("password")
 
     if username in accounts and accounts[username]['role'] == role and accounts[username]['password'] == password:
-        return jsonify({"message": f"Welcome, {accounts[username]['first_name']}!"}), 200
+        return jsonify({
+            "message": f"Welcome, {accounts[username]['first_name']}!",
+            "first_name": accounts[username]['first_name'],
+            "last_name": accounts[username]['last_name'],
+            "role": role  
+        }), 200
     return jsonify({"error": "Invalid credentials"}), 401
+
 
 if __name__ == '__main__':
     app.run(debug=True)
