@@ -41,17 +41,22 @@ async function createAccount() {
       document.getElementById("loginResponse").innerText = data.message;
       document.getElementById("loginResponse").style.color = "green";
   
-      
+      // Store user info
       localStorage.setItem("first_name", data.first_name);
       localStorage.setItem("last_name", data.last_name);
       localStorage.setItem("email", username);
+      localStorage.setItem("role", role);
   
+      // Redirect based on role
       if (role === "student") {
         window.location.href = "studentdashboard.html";
+      } else if (role === "faculty") {
+        window.location.href = "facultydashboard.html";
       }
     } else {
       document.getElementById("loginResponse").innerText = data.error;
       document.getElementById("loginResponse").style.color = "red";
     }
   }
+  
   
