@@ -2,141 +2,108 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Exam Registration Form</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account</title>
+  <script defer src="script.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
       background-color: #f4f4f4;
-      padding: 20px;
+      margin: 0;
     }
 
     .container {
-      max-width: 500px;
-      margin: 0 auto;
-      background: #fff;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 300px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     h1 {
-      text-align: center;
-      margin-bottom: 20px;
+      font-size: 20px;
+      margin-bottom: 5px;
     }
 
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: bold;
+    h2 {
+      font-size: 18px;
+      margin-bottom: 15px;
     }
 
-    input[type="text"],
-    input[type="email"],
-    input[type="date"],
-    select {
-      width: 100%;
-      padding: 8px;
-      margin-top: 5px;
+    input, select {
+      width: 280px;
+      padding: 10px;
+      margin: 10px 0;
       border: 1px solid #ccc;
-      border-radius: 4px;
+      border-radius: 5px;
+      text-align: center;
+      font-size: 16px;
+      font-family: Arial, sans-serif;
+      color: #777;
+      background-color: white;
     }
 
-    .radio-group {
-      margin-top: 5px;
-    }
-
-    .radio-group label {
-      display: block;
-      margin: 5px 0;
-      font-weight: normal;
-    }
-
-    .radio-group input[type="radio"] {
-      margin-right: 10px;
+    input::placeholder {
+      color: #777;
     }
 
     button {
-      background-color: #007BFF;
-      color: white;
+      width: 280px;
       padding: 10px;
-      margin-top: 20px;
-      width: 100%;
+      background: #007bfe;
+      color: white;
       border: none;
-      border-radius: 4px;
-      font-size: 16px;
+      border-radius: 5px;
       cursor: pointer;
+      font-size: 16px;
     }
 
     button:hover {
-      background-color: #0056b3;
+      background: #0056b3;
+    }
+
+    p {
+      margin-top: 10px;
+    }
+
+    a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Register Now</h1>
+    <h1>Register for your exams today!</h1>
+    <h2>Create Account</h2>
 
-    <form>
-      <label for="name">Full Name</label>
-      <input type="text" id="name" name="name" required />
+    <input type="text" id="firstName" placeholder="First Name">
+    <input type="text" id="lastName" placeholder="Last Name">
 
-      <label for="email">Email</label>
-      <input type="email" id="email" name="email" required />
+    <select id="createRole" required>
+      <option value="">Select Role</option>
+      <option value="student">Student</option>
+      <option value="faculty">Faculty</option>
+    </select>
 
-      <label for="class">Class</label>
-      <select id="class" name="class" required>
-        <option value="">Select a class</option>
-      </select>
+    <input type="text" id="createEmail" placeholder="School Email">
+    <input type="password" id="createPassword" placeholder="Password">
 
-      <label for="exam">Exam</label>
-      <select id="exam" name="exam" required>
-        <option value="">Select an exam</option>
-      </select>
-
-      <label>Campus Location</label>
-      <div class="radio-group">
-        <label><input type="radio" name="location" value="Henderson" required /> Henderson</label>
-        <label><input type="radio" name="location" value="North Las Vegas" /> North Las Vegas</label>
-        <label><input type="radio" name="location" value="West Charleston" /> West Charleston</label>
-      </div>
-
-      <label for="date">Date</label>
-      <input type="date" id="date" name="date" required />
-
-      <label for="time">Time</label>
-      <select id="time" name="time" required>
-        <option value="">Select a time</option>
-        <option value="09:00 AM">09:00 AM</option>
-        <option value="09:30 AM">09:30 AM</option>
-        <option value="10:00 AM">10:00 AM</option>
-        <option value="10:30 AM">10:30 AM</option>
-        <option value="11:00 AM">11:00 AM</option>
-        <option value="11:30 AM">11:30 AM</option>
-        <option value="12:00 PM">12:00 PM</option>
-        <option value="12:30 PM">12:30 PM</option>
-        <option value="01:00 PM">01:00 PM</option>
-        <option value="01:30 PM">01:30 PM</option>
-        <option value="02:00 PM">02:00 PM</option>
-        <option value="02:30 PM">02:30 PM</option>
-        <option value="03:00 PM">03:00 PM</option>
-        <option value="03:30 PM">03:30 PM</option>
-        <option value="04:00 PM">04:00 PM</option>
-      </select>
-
-      <button type="submit">Register for Exam</button>
-    </form>
+    <button onclick="createAccount()">Create Account</button>
+    <p id="createResponse"></p>
+    <p>Already have an account? <a href="login.html">Login here</a></p>
   </div>
-
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const firstName = localStorage.getItem("first_name") || "";
-      const lastName = localStorage.getItem("last_name") || "";
-      const email = localStorage.getItem("email") || "";
-
-      document.getElementById("name").value = `${firstName} ${lastName}`;
-      document.getElementById("email").value = email;
-    });
-  </script>
 </body>
 </html>
