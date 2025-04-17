@@ -8,9 +8,15 @@ CORS(app)
 # Temporary storage for user input
 accounts = {}
 
-def validate_email(email):
-    pattern = r'^\d{10}@student\.csn\.edu$'
+def validate_email(email, role):
+    if role == "student":
+        pattern = r'^\d{10}@student\.csn\.edu$'
+    elif role == "faculty":
+        pattern = r'^\d{10}@csn\.edu$'
+    else:
+        return False
     return re.match(pattern, email) is not None
+
 
 @app.route('/create_account', methods=['POST'])
 def create_account():
@@ -27,8 +33,9 @@ def create_account():
     if role not in ['student', 'faculty']:
         return jsonify({"error": "Invalid role"}), 400
     
-    if not validate_email(username):
+    if not validate_email(username, role):
         return jsonify({"error": "Invalid email format"}), 400
+
 
     expected_password = username[:10]  # Extract first 10 characters of email
     if password != expected_password:
