@@ -19,9 +19,11 @@ def get_connection():
         cursorclass=pymysql.cursors.DictCursor
     )
 
+# Validate email format
 def validate_email(email):
     pattern = r'^\d{10}@student\.csn\.edu$'
     return re.match(pattern, email) is not None
+
 
 @app.route('/create_account', methods=['POST'])
 def create_account():
@@ -46,7 +48,6 @@ def create_account():
         return jsonify({"error": "Password must be NSHE# (first 10 characters of email)"}), 400
     
     # ----- Updated! Database Connection -----
-
     conn = None
     try:
         conn = get_connection()
@@ -62,6 +63,20 @@ def create_account():
                      VALUES (%s, %s, %s, %s, %s)"""
             cursor.execute(sql, (first_name, last_name, username, password, role))
             conn.commit()
+
+            # Insert new account into student or faculty table based on role
+            if role == 'student':
+                # Insert into student table
+                sql = """INSERT INTO student (firstname, lastname) VALUES (%s, %s)"""
+                cursor.execute(sql, (first_name, last_name))
+                conn.commit()
+
+            elif role == 'faculty':
+                # Insert into faculty table
+                sql = """INSERT INTO faculty (firstname, lastname) VALUES (%s, %s)"""
+                cursor.execute(sql, (first_name, last_name))
+                conn.commit()
+
 
         return jsonify({"message": f"Account created successfully for {first_name} {last_name}"}), 201
 
