@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Exam Registration Form</title>
+  <title>Create Exam</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -90,30 +90,15 @@
 </head>
 <body>
   <div class="top-bar">
-    <button onclick="window.location.href='studentdashboard.html'">Return to Dashboard</button>
+    <button onclick="window.location.href='facultydashboard.html'">Return to Dashboard</button>
   </div>
 
   <div class="container">
-    <h1>Register Now</h1>
+    <h1>Create Exam</h1>
 
-    <form id="examForm">
-      <label for="name">Full Name</label>
-      <input type="text" id="name" name="name" required />
-
-      <label for="email">Email</label>
-      <input type="email" id="email" name="email" required />
-
-      <label for="class">Class</label>
-      <select id="class" name="class" required>
-        <option value="">Select a class</option>
-        <!-- Add options here -->
-      </select>
-
+    <form id="createExamForm">
       <label for="exam">Exam</label>
-      <select id="exam" name="exam" required>
-        <option value="">Select an exam</option>
-        <!-- Add options here -->
-      </select>
+      <input type="text" id="exam" name="exam" required />
 
       <label>Campus Location</label>
       <div class="radio-group">
@@ -123,14 +108,10 @@
       </div>
 
       <label for="building">Building</label>
-      <select id="Building" name="building" required>
-        <option value="">Select Building</option>
-      </select>
+      <input type="text" id="building" name="building" required />
 
       <label for="room">Room number</label>
-      <select id="room" name="room" required>
-        <option value="">Select Room number</option>
-      </select>
+      <input type="text" id="room" name="room" required />
 
       <label for="date">Date</label>
       <input type="date" id="date" name="date" required />
@@ -155,23 +136,14 @@
         <option value="04:00 PM">04:00 PM</option>
       </select>
 
-      <button type="submit">Register for Exam</button>
+      <button type="submit">Create Exam</button>
     </form>
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const firstName = localStorage.getItem("first_name") || "";
-      const lastName = localStorage.getItem("last_name") || "";
-      const email = localStorage.getItem("email") || "";
-
-      document.getElementById("name").value = `${firstName} ${lastName}`;
-      document.getElementById("email").value = email;
-
-      document.getElementById("examForm").addEventListener("submit", function (e) {
-        e.preventDefault();
-        window.location.href = "studentdashboard.html";
-      });
+    document.getElementById("createExamForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      window.location.href = "facultydashboard.html";
     });
   </script>
 </body>

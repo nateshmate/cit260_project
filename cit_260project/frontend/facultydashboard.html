@@ -31,8 +31,26 @@
       font-size: 18px;
       color: #555;
     }
+    .action-links {
+      margin-top: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .action-links a {
+      display: inline-block;
+      padding: 12px 24px;
+      background-color: #007bff;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    .action-links a:hover {
+      background-color: #0056b3;
+    }
     button {
-      margin-top: 20px;
+      margin-top: 30px;
       padding: 12px 24px;
       font-size: 16px;
       background-color: #dc3545;
@@ -51,6 +69,12 @@
   <div class="dashboard-container">
     <h1 id="facultyWelcome">Welcome, Faculty!</h1>
     <p>You can review and manage student exam registrations here.</p>
+
+    <div class="action-links">
+      <a href="create_exam.html">Create an Exam</a>
+      <a href="student_report.html">Run Student Report</a>
+    </div>
+
     <button onclick="logout()">Logout</button>
   </div>
 
@@ -60,7 +84,7 @@
       const lastName = localStorage.getItem("last_name");
 
       if (firstName && lastName) {
-        document.getElementById("facultyWelcome").innerText = `Welcome, Professor ${firstName} ${lastName}!`;
+        document.getElementById("facultyWelcome").innerText = `Welcome, ${firstName} ${lastName}!`;
       }
     });
 
