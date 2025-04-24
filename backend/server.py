@@ -6,8 +6,6 @@ import re
 app = Flask(__name__)
 CORS(app)  
 
-# Temporary storage for user input
-# accounts = {}
 
 # Connect database
 def get_connection():
@@ -20,8 +18,13 @@ def get_connection():
     )
 
 # Validate email format
-def validate_email(email):
-    pattern = r'^\d{10}@student\.csn\.edu$'
+def validate_email(email, role):
+    if role == "student":
+        pattern = r'^\d{10}@student\.csn\.edu$'
+    elif role == "faculty":
+        pattern = r'^[a-zA-Z]+\.[a-zA-Z]+@csn\.edu$'
+    else:
+        return False
     return re.match(pattern, email) is not None
 
 
@@ -40,12 +43,13 @@ def create_account():
     if role not in ['student', 'faculty']:
         return jsonify({"error": "Invalid role"}), 400
     
-    if not validate_email(username):
+    if not validate_email(username, role):
         return jsonify({"error": "Invalid email format"}), 400
 
-    expected_password = username[:10]  # Extract first 10 characters of email
-    if password != expected_password:
-        return jsonify({"error": "Password must be NSHE# (first 10 characters of email)"}), 400
+    if role == "student":
+        expected_password = username[:10]  # Extract first 10 characters of email
+        if password != expected_password:
+            return jsonify({"error": "Password must be NSHE# (first 10 characters of email)"}), 400
     
     # ----- Updated! Database Connection -----
     conn = None
@@ -140,5 +144,3 @@ def login():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
