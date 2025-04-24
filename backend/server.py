@@ -18,10 +18,10 @@ def get_connection():
     )
 
 # Validate email format
-def validate_email(email, role):
-    if role == "student":
+def validate_email(email, Role):
+    if Role == "student":
         pattern = r'^\d{10}@student\.csn\.edu$'
-    elif role == "faculty":
+    elif Role == "faculty":
         pattern = r'^[a-zA-Z]+\.[a-zA-Z]+@csn\.edu$'
     else:
         return False
@@ -31,24 +31,24 @@ def validate_email(email, role):
 @app.route('/create_account', methods=['POST'])
 def create_account():
     data = request.json
-    first_name = data.get("first_name")
-    last_name = data.get("last_name")
-    role = data.get("role")
-    username = data.get("username")
-    password = data.get("password")
+    First_Name = data.get("First_Name")
+    Last_Name = data.get("Last_Name")
+    Role = data.get("Role")
+    CSN_email = data.get("CSN_email")
+    Password = data.get("Password")
 
-    if not all([first_name, last_name, role, username, password]):
+    if not all([First_Name, Last_Name, Role, CSN_email, Password]):
         return jsonify({"error": "All fields are required"}), 400
 
-    if role not in ['student', 'faculty']:
+    if Role not in ['student', 'faculty']:
         return jsonify({"error": "Invalid role"}), 400
     
-    if not validate_email(username, role):
+    if not validate_email(CSN_email, Role):
         return jsonify({"error": "Invalid email format"}), 400
 
-    if role == "student":
-        expected_password = username[:10]  # Extract first 10 characters of email
-        if password != expected_password:
+    if Role == "student":
+        expected_password = CSN_email[:10]  # Extract first 10 characters of email
+        if Password != expected_password:
             return jsonify({"error": "Password must be NSHE# (first 10 characters of email)"}), 400
     
     # ----- Updated! Database Connection -----
@@ -57,32 +57,32 @@ def create_account():
         conn = get_connection()
         with conn.cursor() as cursor:
             # Check if the account already exists
-            cursor.execute("SELECT * FROM authentication WHERE email = %s", (username,))
+            cursor.execute("SELECT * FROM authentication WHERE CSN_email = %s", (CSN_email,))
             existing = cursor.fetchone()
             if existing:
                 return jsonify({"error": "Account already exists"}), 400
 
             # Insert new account into authentication table
-            sql = """INSERT INTO authentication (firstname, lastname, email, password, role)
+            sql = """INSERT INTO authentication (CSN_email, Password, Role, First_Name, Last_Name)
                      VALUES (%s, %s, %s, %s, %s)"""
-            cursor.execute(sql, (first_name, last_name, username, password, role))
+            cursor.execute(sql, (CSN_email, Password, Role, First_Name, Last_Name))
             conn.commit()
 
-            # Insert new account into student or faculty table based on role
-            if role == 'student':
+            # Insert new account into student or faculty table based on Role
+            if Role == 'student':
                 # Insert into student table
-                sql = """INSERT INTO student (firstname, lastname) VALUES (%s, %s)"""
-                cursor.execute(sql, (first_name, last_name))
+                sql = """INSERT INTO student (First_Name, Last_Name) VALUES (%s, %s)"""
+                cursor.execute(sql, (First_Name, Last_Name))
                 conn.commit()
 
-            elif role == 'faculty':
+            elif Role == 'faculty':
                 # Insert into faculty table
-                sql = """INSERT INTO faculty (firstname, lastname) VALUES (%s, %s)"""
-                cursor.execute(sql, (first_name, last_name))
+                sql = """INSERT INTO faculty (First_Name, Last_Name) VALUES (%s, %s)"""
+                cursor.execute(sql, (First_Name, Last_Name))
                 conn.commit()
 
 
-        return jsonify({"message": f"Account created successfully for {first_name} {last_name}"}), 201
+        return jsonify({"message": f"Account created successfully for {First_Name} {Last_Name}"}), 201
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -91,36 +91,36 @@ def create_account():
             conn.close()
 
     '''
-    if username in accounts:
+    if CSN_email in accounts:
         return jsonify({"error": "Account already exists"}), 400
 
-    accounts[username] = {
-        'first_name': first_name,
-        'last_name': last_name,
-        'role': role,
-        'password': password
+    accounts[CSN_email] = {
+        'First_Name': First_Name,
+        'Last_Name': Last_Name,
+        'Role': Role,
+        'Password': Password
     }
-    return jsonify({"message": f"Account created successfully for {first_name} {last_name}"}), 201
+    return jsonify({"message": f"Account created successfully for {First_Name} {Last_Name}"}), 201
     '''
 @app.route('/login', methods=['POST'])
 def login():
     data = request.json
-    role = data.get("role")
-    username = data.get("username")
-    password = data.get("password")
+    Role = data.get("Role")
+    CSN_email = data.get("CSN_email")
+    Password = data.get("Password")
 
     try:
         conn = get_connection()
         with conn.cursor() as cursor:
-            cursor.execute("SELECT * FROM authentication WHERE email = %s AND role = %s", (username, role))
+            cursor.execute("SELECT * FROM authentication WHERE CSN_email = %s AND Role = %s", (CSN_email, Role))
             user = cursor.fetchone()
 
-            if user and user['password'] == password:
+            if user and user['Password'] == Password:
                 return jsonify({
-                    "message": f"Welcome, {user['firstname']}!",
-                    "first_name": user['firstname'],
-                    "last_name": user['lastname'],
-                    "role": user['role']
+                    "message": f"Welcome, {user['First_Name']}!",
+                    "First_Name": user['First_Name'],
+                    "Last_Name": user['Last_Name'],
+                    "Role": user['Role']
                 }), 200
             else:
                 return jsonify({"error": "Invalid credentials"}), 401
@@ -131,12 +131,12 @@ def login():
             conn.close()
 
     '''
-    if username in accounts and accounts[username]['role'] == role and accounts[username]['password'] == password:
+    if CSN_email in accounts and accounts[CSN_email]['Role'] == Role and accounts[CSN_email]['Password'] == Password:
         return jsonify({
-            "message": f"Welcome, {accounts[username]['first_name']}!",
-            "first_name": accounts[username]['first_name'],
-            "last_name": accounts[username]['last_name'],
-            "role": role  
+            "message": f"Welcome, {accounts[CSN_email]['First_Name']}!",
+            "First_Name": accounts[CSN_email]['First_Name'],
+            "Last_Name": accounts[CSN_email]['Last_Name'],
+            "Role": Role  
         }), 200
     return jsonify({"error": "Invalid credentials"}), 401
     '''
