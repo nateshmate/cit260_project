@@ -2,35 +2,123 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <script defer src="script.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - Exam Registration</title>
-  <script defer src="script.js"></script>
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
     body {
       font-family: Arial, sans-serif;
-      margin: 0;
-      background-color: #f4f4f4;
+      background-color: #eef2f3;
       display: flex;
       flex-direction: column;
+      min-height: 100vh;
       align-items: center;
-      padding: 20px;
     }
+    header {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      width: 100%;
+      padding: 15px 40px; /* Added horizontal padding */
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .user-box {
+      position: relative;
+      cursor: pointer;
+      padding: 10px;
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      transition: background-color 0.3s ease;
+    }
+    .user-box:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+    .user-info {
+      font-size: 16px;
+    }
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 45px;
+      right: 0;
+      background-color: white;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      min-width: 180px;
+      border-radius: 5px;
+      z-index: 1;
+    }
+    .dropdown-content p {
+      font-size: 14px;
+      margin: 10px;
+      font-weight: bold;
+    }
+    .dropdown-content a, .dropdown-content button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      border: none;
+      background: none;
+      text-align: left;
+      cursor: pointer;
+      font-size: 16px;
+      color: black;
+      text-decoration: none;
+      border-top: 1px solid #eee;
+    }
+    .dropdown-content a:hover, .dropdown-content button:hover {
+      background-color: #f1f1f1;
+    }
+
     .dashboard-container {
       background: white;
       padding: 30px;
-      margin-top: 50px;
+      margin-top: 40px;
       border-radius: 12px;
-      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       width: 90%;
       max-width: 800px;
       text-align: center;
     }
+
     h1 {
       color: #333;
+      margin-bottom: 20px;
     }
-    button {
+
+    .exam-list {
+      margin-top: 30px;
+      text-align: left;
+    }
+
+    .exam-item {
+      background-color: #f9f9ff;
+      margin-bottom: 15px;
+      padding: 15px;
+      border-left: 5px solid #667eea;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .exam-item strong {
       display: block;
-      margin: 20px auto;
+      margin-bottom: 5px;
+      color: #333;
+    }
+
+    .register-btn {
+      display: block;
+      margin: 30px auto 0;
       padding: 12px 24px;
       font-size: 16px;
       background-color: #007bff;
@@ -38,44 +126,38 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
+      transition: background-color 0.3s ease;
     }
-    button:hover {
+
+    .register-btn:hover {
       background-color: #0056b3;
-    }
-    .exam-list {
-      margin-top: 30px;
-    }
-    .exam-item {
-      background-color: #eef;
-      margin-bottom: 10px;
-      padding: 12px;
-      border-radius: 8px;
-    }
-    .exam-item strong {
-      display: block;
     }
   </style>
 </head>
 <body>
 
+  <header>
+    <div class="logo">Exam Dashboard</div>
+    <div class="user-box" onclick="toggleDropdown()">
+      <span class="user-info" id="userName">Student</span>
+      <div id="userDropdown" class="dropdown-content">
+        <p id="dropdownGreeting">Hello!</p>
+        <a href="register.html">Register for Exam</a>
+        <a href="confirmation_page_.html">My Registrations</a>
+        <button onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </header>
+
   <div class="dashboard-container">
     <h1 id="welcomeMessage">Welcome!</h1>
 
-    <button onclick="window.location.href='register.html'">Register for Exam</button>
-
     <div class="exam-list">
       <h2>Currently Registered Exams</h2>
-      <div class="exam-item">
-        <strong>Exam:</strong> <br>
-        <strong>Class:</strong>
-      </div>
-      <div class="exam-item">
-        <strong>Exam:</strong> <br>
-        <strong>Class:</strong>
-      </div>
+      <div id="examList">Loading exams...</div>
     </div>
 
-    <button onclick="logout()">Logout</button>
+    <button class="register-btn" onclick="window.location.href='register.html'">Register for Exam</button>
   </div>
 
   <script>
@@ -83,16 +165,60 @@
       const firstName = localStorage.getItem("first_name");
       const lastName = localStorage.getItem("last_name");
 
+      const welcome = document.getElementById("welcomeMessage");
+      const userNameDisplay = document.getElementById("userName");
+      const greeting = document.getElementById("dropdownGreeting");
+
       if (firstName && lastName) {
-        document.getElementById("welcomeMessage").innerText = `Welcome, ${firstName} ${lastName}!`;
-      } else {
-        document.getElementById("welcomeMessage").innerText = "Welcome!";
+        welcome.innerText = `Welcome, ${firstName} ${lastName}!`;
+        userNameDisplay.innerText = `${firstName} ${lastName} (Student)`;
+        greeting.innerText = `Hello, ${firstName}!`;
       }
+
+      fetch("/student/exams")
+        .then(response => response.json())
+        .then(data => {
+          const examListDiv = document.getElementById("examList");
+          examListDiv.innerHTML = "";
+
+          if (!data || data.length === 0) {
+            examListDiv.innerHTML = "<p>No current exams.</p>";
+            return;
+          }
+
+          data.forEach(exam => {
+            const item = document.createElement("div");
+            item.className = "exam-item";
+            item.innerHTML = `
+              <strong>Exam:</strong> ${exam.Exam_Name}<br>
+              <strong>Class:</strong> ${exam.Class}
+            `;
+            examListDiv.appendChild(item);
+          });
+        })
+        .catch(err => {
+          console.error("Failed to load exams:", err);
+          document.getElementById("examList").innerHTML = "<p>Error loading exams.</p>";
+        });
     });
 
     function logout() {
       localStorage.clear();
       window.location.href = "login.html";
+    }
+
+    function toggleDropdown() {
+      const dropdown = document.getElementById("userDropdown");
+      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    }
+
+    window.onclick = function (e) {
+      if (!e.target.closest(".user-box")) {
+        const dropdown = document.getElementById("userDropdown");
+        if (dropdown && dropdown.style.display === "block") {
+          dropdown.style.display = "none";
+        }
+      }
     }
   </script>
 
