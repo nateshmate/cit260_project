@@ -154,12 +154,14 @@
           table.innerHTML = `
             <thead>
               <tr>
-                <th>Exam ID</th>
-                <th>Exam Name</th>
+                <th>Exam_ID</th>
+                <th>Exam_Name</th>
                 <th>Date</th>
-                <th>Time</th>
+                <th>Exam_time</th>
                 <th>Capacity</th>
-                <th>Faculty ID</th>
+                <th>Current_count</th>
+                <th>Location_ID</th>
+                <th>Faculty_ID</th>
               </tr>
             </thead>
             <tbody>
@@ -170,6 +172,8 @@
                   <td>${exam.Date}</td>
                   <td>${exam.Exam_time}</td>
                   <td>${exam.Capacity}</td>
+                  <td>${exam.Current_count}</td>
+                  <td>${exam.Location_ID}</td>
                   <td>${exam.Faculty_ID}</td>
                 </tr>
               `).join('')}
