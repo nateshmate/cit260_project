@@ -152,6 +152,13 @@
         <option value="04:00 PM">04:00 PM</option>
       </select>
 
+      <label for="Capacity">Capacity</label>
+      <input type="number" id="Capacity" name="Capacity" required min="1" max="20" />
+
+      <input type="hidden" id="Current_count" name="Current_count" value="0" />
+      <input type="hidden" id="Faculty_ID" name="Faculty_ID" />
+      <input type="hidden" id="Location_ID" name="Location_ID" />
+
       <button type="submit">Create Exam</button>
     </form>
   </div>
