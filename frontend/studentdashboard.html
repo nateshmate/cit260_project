@@ -191,7 +191,9 @@
             item.className = "exam-item";
             item.innerHTML = `
               <strong>Exam:</strong> ${exam.Exam_Name}<br>
-              <strong>Class:</strong> ${exam.Class}
+              <strong>Date:</strong> ${exam.Date}<br>
+              <strong>Time:</strong> ${exam.Exam_time}<br>
+              <strong>Location:</strong> ${exam.Campus_Name}, ${exam.Building_Name} ${exam.Room_Number}
             `;
             examListDiv.appendChild(item);
           });
