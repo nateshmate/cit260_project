@@ -169,13 +169,12 @@
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            Auth_ID: null, // You may generate this server-side
+            Auth_ID: null,
             CSN_email: email,
             Password: password,
             Role: role,
             First_Name: firstName,
             Last_Name: lastName,
-            Email: email,
             NSHE_number: nsheNumber || null
           })
         });
