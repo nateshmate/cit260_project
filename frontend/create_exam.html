@@ -3,104 +3,137 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Create exam form</title>
+  <title>Create Exam</title>
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
     body {
       font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      padding: 20px;
+      background-color: #eef2f3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
     }
-
-    .container {
-      max-width: 500px;
-      margin: 0 auto;
-      background: #fff;
-      padding: 30px;
+    header {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      width: 100%;
+      padding: 15px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .back-btn {
+      background-color: rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 8px 16px;
+      font-size: 14px;
+      border: none;
       border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      white-space: nowrap;
     }
-
+    .back-btn:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+    .container {
+      background: white;
+      margin-top: 40px;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 600px;
+    }
     h1 {
       text-align: center;
       margin-bottom: 20px;
+      color: #333;
     }
-
     label {
       display: block;
       margin-top: 15px;
       font-weight: bold;
+      color: #555;
     }
-
-    input[type="text"],
-    input[type="email"],
-    input[type="date"],
-    select {
+    input, select {
       width: 100%;
-      padding: 8px;
+      padding: 10px;
       margin-top: 5px;
       border: 1px solid #ccc;
-      border-radius: 4px;
+      border-radius: 5px;
+      font-size: 16px;
     }
-
-    .radio-group {
-      margin-top: 5px;
+    .radio-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+      gap: 10px;
     }
-
-    .radio-group label {
-      display: block;
-      margin: 5px 0;
-      font-weight: normal;
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
-
-    .radio-group input[type="radio"] {
-      margin-right: 10px;
-    }
-
-    button {
-      background-color: #007BFF;
+    button[type="submit"] {
+      background-color: #007bff;
       color: white;
-      padding: 10px;
-      margin-top: 20px;
+      padding: 12px;
+      margin-top: 30px;
       width: 100%;
       border: none;
-      border-radius: 4px;
+      border-radius: 8px;
       font-size: 16px;
       cursor: pointer;
+      transition: background-color 0.3s ease;
     }
-
-    button:hover {
+    button[type="submit"]:hover {
       background-color: #0056b3;
     }
   </style>
 </head>
 <body>
+
+  <header>
+    <div class="logo">Create Exam</div>
+    <button class="back-btn" onclick="window.location.href='facultydashboard.html'">Return to Dashboard</button>
+  </header>
+
   <div class="container">
-    <h1>Create exam</h1>
+    <h1>Create New Exam</h1>
 
-    <form>
-      
-      <label for="exam">Exam</label>
-      <input type="text" id="exam" name="exam" required />
+    <form id="createExamForm">
+      <label for="Exam_Name">Exam Name</label>
+      <input type="text" id="Exam_Name" name="Exam_Name" required />
 
-		<label>Campus Location</label>
-      <div class="radio-group">
-        <label><input type="radio" name="location" value="Henderson" required /> Henderson</label>
-        <label><input type="radio" name="location" value="North Las Vegas" /> North Las Vegas</label>
-        <label><input type="radio" name="location" value="West Charleston" /> West Charleston</label>
+      <label>Campus Location</label>
+      <div class="radio-row">
+        <label class="radio-option"><input type="radio" name="Campus_Name" value="Henderson" required /> Henderson</label>
+        <label class="radio-option"><input type="radio" name="Campus_Name" value="North Las Vegas" /> North Las Vegas</label>
+        <label class="radio-option"><input type="radio" name="Campus_Name" value="West Charleston" /> West Charleston</label>
       </div>
 
-    <label for="building">Building</label>
-      <input type="text" id="building" name="building" required />
-    
-      
-      <label for="room">Room number</label>
-      <input type="text" id="room" name="room" required />
-      
-      <label for="date">Date</label>
-      <input type="date" id="date" name="date" required />
+      <label for="Building_Name">Building</label>
+      <input type="text" id="Building_Name" name="Building_Name" required />
 
-      <label for="time">Time</label>
-      <select id="time" name="time" required>
+      <label for="Room_Number">Room Number</label>
+      <input type="text" id="Room_Number" name="Room_Number" required />
+
+      <label for="Date">Date</label>
+      <input type="date" id="Date" name="Date" required />
+
+      <label for="Exam_time">Time</label>
+      <select id="Exam_time" name="Exam_time" required>
         <option value="">Select a time</option>
         <option value="09:00 AM">09:00 AM</option>
         <option value="09:30 AM">09:30 AM</option>
@@ -119,19 +152,17 @@
         <option value="04:00 PM">04:00 PM</option>
       </select>
 
-      <button type="submit">Register for Exam</button>
+      <button type="submit">Create Exam</button>
     </form>
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const firstName = localStorage.getItem("first_name") || "";
-      const lastName = localStorage.getItem("last_name") || "";
-      const email = localStorage.getItem("email") || "";
-
-      document.getElementById("name").value = `${firstName} ${lastName}`;
-      document.getElementById("email").value = email;
+    document.getElementById("createExamForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      // Here you would typically send form data to the server
+      window.location.href = "facultydashboard.html";
     });
   </script>
+
 </body>
 </html>
