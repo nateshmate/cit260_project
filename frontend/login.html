@@ -2,62 +2,72 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <script defer src="script.js"></script>
+  <title>Login - Exam Registration</title>
   <style>
     body {
       font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #eef2f3;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      align-items: center;
+    }
+    header {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      width: 100%;
+      padding: 15px 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      background-color: #f4f4f4;
-      margin: 0;
     }
-
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+    }
     .container {
       background: white;
-      padding: 20px;
+      padding: 30px;
       border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       text-align: center;
-      width: 300px;
+      width: 320px;
+      margin-top: 40px;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
-
     h1 {
-      font-size: 20px;
-      margin-bottom: 5px;
+      font-size: 22px;
+      margin-bottom: 10px;
+      color: #333;
     }
-
     h2 {
       font-size: 18px;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
+      color: #555;
     }
-
+    label {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 5px;
+      display: inline-block;
+    }
     input, select {
-      width: 280px;
+      width: 100%;
       padding: 10px;
       margin: 10px 0;
       border: 1px solid #ccc;
       border-radius: 5px;
       text-align: center;
       font-size: 16px;
-      font-family: Arial, sans-serif;
-      color: #777;
-      background-color: white;
     }
-
-    input::placeholder {
-      color: #777
-    ;
-    }
-
     button {
-      width: 280px;
+      width: 100%;
       padding: 10px;
       background: #007bff;
       color: white;
@@ -65,43 +75,94 @@
       border-radius: 5px;
       cursor: pointer;
       font-size: 16px;
+      transition: background-color 0.3s ease;
     }
-
     button:hover {
       background: #0056b3;
     }
-
     p {
       margin-top: 10px;
+      font-size: 14px;
+      color: #666;
     }
-
     a {
       color: #007bff;
       text-decoration: none;
     }
-
     a:hover {
       text-decoration: underline;
     }
   </style>
 </head>
 <body>
+
+  <header>
+    <div class="logo">Exam Dashboard</div>
+  </header>
+
   <div class="container">
     <h1>Register for your exams today!</h1>
     <h2>Login</h2>
 
+    <label for="loginRole">Role</label>
     <select id="loginRole" required>
       <option value="">Select Role</option>
       <option value="student">Student</option>
       <option value="faculty">Faculty</option>
     </select>
 
-    <input type="text" id="loginEmail" placeholder="School Email">
-    <input type="password" id="loginPassword" placeholder="Password">
+    <input type="text" id="CSN_email" placeholder="School Email" required>
+    <input type="password" id="Password" placeholder="Password" required>
 
     <button onclick="login()">Login</button>
     <p id="loginResponse"></p>
     <p>Don't have an account? <a href="create.html">Create one</a></p>
   </div>
+
+  <script>
+    async function login() {
+      const email = document.getElementById("CSN_email").value;
+      const password = document.getElementById("Password").value;
+      const role = document.getElementById("loginRole").value;
+      const responseField = document.getElementById("loginResponse");
+
+      if (!email || !password || !role) {
+        responseField.textContent = "Please fill in all fields.";
+        responseField.style.color = "red";
+        return;
+      }
+
+      try {
+        const response = await fetch("/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ CSN_email: email, Password: password, Role: role })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          responseField.textContent = "Login successful!";
+          responseField.style.color = "green";
+
+          setTimeout(() => {
+            if (role === "student") {
+              window.location.href = "dashboard.html";
+            } else if (role === "faculty") {
+              window.location.href = "facultyReport.html";
+            }
+          }, 1000);
+        } else {
+          responseField.textContent = result.message || "Login failed.";
+          responseField.style.color = "red";
+        }
+      } catch (err) {
+        console.error(err);
+        responseField.textContent = "Server error. Try again.";
+        responseField.style.color = "red";
+      }
+    }
+  </script>
+
 </body>
 </html>
