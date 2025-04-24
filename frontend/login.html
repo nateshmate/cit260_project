@@ -3,165 +3,190 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <script defer src="script.js"></script>
-  <title>Login - Exam Registration</title>
+  <title>Register For Exam</title>
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
     body {
       font-family: Arial, sans-serif;
-      margin: 0;
       background-color: #eef2f3;
       display: flex;
       flex-direction: column;
-      min-height: 100vh;
       align-items: center;
+      min-height: 100vh;
     }
     header {
       background: linear-gradient(135deg, #667eea, #764ba2);
       color: white;
       width: 100%;
-      padding: 15px 20px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      padding: 15px 40px;
       display: flex;
-      justify-content: center;
+      justify-content: space-between;
       align-items: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
     .logo {
       font-size: 24px;
       font-weight: bold;
     }
+    .back-btn {
+      background-color: rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 8px 16px;
+      font-size: 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      white-space: nowrap;
+    }
+    .back-btn:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+    }
     .container {
       background: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      width: 320px;
       margin-top: 40px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 600px;
     }
     h1 {
-      font-size: 22px;
-      margin-bottom: 10px;
+      text-align: center;
+      margin-bottom: 20px;
       color: #333;
     }
-    h2 {
-      font-size: 18px;
-      margin-bottom: 20px;
-      color: #555;
-    }
     label {
-      font-size: 14px;
-      color: #666;
-      margin-bottom: 5px;
-      display: inline-block;
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #555;
     }
     input, select {
       width: 100%;
       padding: 10px;
-      margin: 10px 0;
+      margin-top: 5px;
       border: 1px solid #ccc;
       border-radius: 5px;
-      text-align: center;
       font-size: 16px;
     }
-    button {
-      width: 100%;
-      padding: 10px;
-      background: #007bff;
+    .radio-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+      gap: 10px;
+    }
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    button[type="submit"] {
+      background-color: #007bff;
       color: white;
+      padding: 12px;
+      margin-top: 30px;
+      width: 100%;
       border: none;
-      border-radius: 5px;
-      cursor: pointer;
+      border-radius: 8px;
       font-size: 16px;
+      cursor: pointer;
       transition: background-color 0.3s ease;
     }
-    button:hover {
-      background: #0056b3;
-    }
-    p {
-      margin-top: 10px;
-      font-size: 14px;
-      color: #666;
-    }
-    a {
-      color: #007bff;
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
+    button[type="submit"]:hover {
+      background-color: #0056b3;
     }
   </style>
 </head>
 <body>
 
   <header>
-    <div class="logo">Exam Dashboard</div>
+    <div class="logo">Register For Exam</div>
+    <button class="back-btn" onclick="window.location.href='studentdashboard.html'">Return to Dashboard</button>
   </header>
 
   <div class="container">
-    <h1>Register for your exams today!</h1>
-    <h2>Login</h2>
+    <h1>Register Now</h1>
 
-    <label for="loginRole">Role</label>
-    <select id="loginRole" required>
-      <option value="">Select Role</option>
-      <option value="student">Student</option>
-      <option value="faculty">Faculty</option>
-    </select>
+    <form id="examForm">
+      <label for="Full_Name">Full Name</label>
+      <input type="text" id="Full_Name" name="Full_Name" required />
 
-    <input type="text" id="CSN_email" placeholder="School Email" required>
-    <input type="password" id="Password" placeholder="Password" required>
+      <label for="Email">Email</label>
+      <input type="email" id="Email" name="Email" required />
 
-    <button onclick="login()">Login</button>
-    <p id="loginResponse"></p>
-    <p>Don't have an account? <a href="create.html">Create one</a></p>
+      <label for="Class">Class</label>
+      <select id="Class" name="Class" required>
+        <option value="">Select a class</option>
+      </select>
+
+      <label for="Exam_Name">Exam</label>
+      <select id="Exam_Name" name="Exam_Name" required>
+        <option value="">Select an exam</option>
+      </select>
+
+      <label>Campus Location</label>
+      <div class="radio-row">
+        <label class="radio-option"><input type="radio" name="Campus_Name" value="Henderson" required /> Henderson</label>
+        <label class="radio-option"><input type="radio" name="Campus_Name" value="North Las Vegas" /> North Las Vegas</label>
+        <label class="radio-option"><input type="radio" name="Campus_Name" value="West Charleston" /> West Charleston</label>
+      </div>
+
+      <label for="Building_Name">Building</label>
+      <select id="Building_Name" name="Building_Name" required>
+        <option value="">Select Building</option>
+      </select>
+
+      <label for="Room_Number">Room number</label>
+      <select id="Room_Number" name="Room_Number" required>
+        <option value="">Select Room number</option>
+      </select>
+
+      <label for="Date">Date</label>
+      <input type="date" id="Date" name="Date" required />
+
+      <label for="Exam_time">Time</label>
+      <select id="Exam_time" name="Exam_time" required>
+        <option value="">Select a time</option>
+        <option value="09:00 AM">09:00 AM</option>
+        <option value="09:30 AM">09:30 AM</option>
+        <option value="10:00 AM">10:00 AM</option>
+        <option value="10:30 AM">10:30 AM</option>
+        <option value="11:00 AM">11:00 AM</option>
+        <option value="11:30 AM">11:30 AM</option>
+        <option value="12:00 PM">12:00 PM</option>
+        <option value="12:30 PM">12:30 PM</option>
+        <option value="01:00 PM">01:00 PM</option>
+        <option value="01:30 PM">01:30 PM</option>
+        <option value="02:00 PM">02:00 PM</option>
+        <option value="02:30 PM">02:30 PM</option>
+        <option value="03:00 PM">03:00 PM</option>
+        <option value="03:30 PM">03:30 PM</option>
+        <option value="04:00 PM">04:00 PM</option>
+      </select>
+
+      <button type="submit">Register for Exam</button>
+    </form>
   </div>
 
   <script>
-    async function login() {
-      const email = document.getElementById("CSN_email").value;
-      const password = document.getElementById("Password").value;
-      const role = document.getElementById("loginRole").value;
-      const responseField = document.getElementById("loginResponse");
+    document.addEventListener("DOMContentLoaded", function () {
+      const firstName = localStorage.getItem("first_name") || "";
+      const lastName = localStorage.getItem("last_name") || "";
+      const email = localStorage.getItem("email") || "";
 
-      if (!email || !password || !role) {
-        responseField.textContent = "Please fill in all fields.";
-        responseField.style.color = "red";
-        return;
-      }
+      document.getElementById("Full_Name").value = `${firstName} ${lastName}`;
+      document.getElementById("Email").value = email;
 
-      try {
-        const response = await fetch("/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ CSN_email: email, Password: password, Role: role })
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-          responseField.textContent = "Login successful!";
-          responseField.style.color = "green";
-
-          setTimeout(() => {
-            if (role === "student") {
-              window.location.href = "dashboard.html";
-            } else if (role === "faculty") {
-              window.location.href = "facultyReport.html";
-            }
-          }, 1000);
-        } else {
-          responseField.textContent = result.message || "Login failed.";
-          responseField.style.color = "red";
-        }
-      } catch (err) {
-        console.error(err);
-        responseField.textContent = "Server error. Try again.";
-        responseField.style.color = "red";
-      }
-    }
+      document.getElementById("examForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        window.location.href = "studentdashboard.html";
+      });
+    });
   </script>
 
 </body>
