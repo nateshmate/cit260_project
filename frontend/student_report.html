@@ -135,7 +135,8 @@
       <thead>
         <tr>
           <th>Student_ID</th>
-          <th>Full_Name</th>
+          <th>First_Name</th>
+          <th>Last_Name</th>
           <th>Exam_Name</th>
           <th>Date</th>
           <th>Campus_Name</th>
@@ -149,7 +150,8 @@
         <!--
         <tr>
           <td>105789234082</td>
-          <td>Keaton Brooks</td>
+          <td>Keaton</td>
+          <td>Brooks</td>
           <td>CIT 260</td>
           <td>Apr 1</td>
           <td>Henderson</td>
@@ -169,8 +171,8 @@
 
       const rows = document.querySelectorAll("#studentTable tbody tr");
       rows.forEach(row => {
-        const [studentID, fullName, examName, examDate, campusName, buildingName, roomNumber] = Array.from(row.children).map(cell => cell.innerText.toLowerCase());
-        const matchesSearch = studentID.includes(search) || fullName.includes(search) || examName.includes(search);
+        const [studentID, firstName, lastName, examName, examDate, campusName, buildingName, roomNumber] = Array.from(row.children).map(cell => cell.innerText.toLowerCase());
+        const matchesSearch = studentID.includes(search) || firstName.includes(search) || lastName.includes(search) || examName.includes(search);
         const matchesCampus = !campus || campusName.includes(campus);
         const formatted = new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toLowerCase();
         const matchesDate = !date || examDate.includes(formatted);
@@ -193,7 +195,7 @@
       });
 
       doc.autoTable({
-        head: [["Student_ID", "Full_Name", "Exam_Name", "Date", "Campus_Name", "Building_Name", "Room_Number"]],
+        head: [["Student_ID", "First_Name", "Last_Name", "Exam_Name", "Date", "Campus_Name", "Building_Name", "Room_Number"]],
         body: rows,
         startY: 25,
         theme: 'grid',
@@ -201,6 +203,32 @@
 
       doc.save("Student_Report.pdf");
     }
+
+    window.addEventListener("DOMContentLoaded", async () => {
+      try {
+        const res = await fetch("/api/student_registrations");
+        const data = await res.json();
+        const tbody = document.querySelector("#studentTable tbody");
+        tbody.innerHTML = "";
+
+        data.forEach(row => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${row.Student_ID}</td>
+            <td>${row.First_Name}</td>
+            <td>${row.Last_Name}</td>
+            <td>${row.Exam_Name}</td>
+            <td>${row.Date}</td>
+            <td>${row.Campus_Name}</td>
+            <td>${row.Building_Name}</td>
+            <td>${row.Room_Number}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error("Failed to fetch student registrations:", err);
+      }
+    });
   </script>
 
 </body>
