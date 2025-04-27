@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Create Exam</title>
+  <script defer src="script.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -96,7 +97,7 @@
   <div class="container">
     <h1>Create Exam</h1>
 
-    <form id="createExamForm">
+    <form id="createExamForm" onsubmit="handleCreateExam(event)">
       <label for="exam">Exam</label>
       <input type="text" id="exam" name="exam" required />
 
