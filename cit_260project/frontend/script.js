@@ -59,3 +59,56 @@ async function login() {
   }
 }
 
+
+
+async function createExam() {
+  const examname = document.getElementById("exam").value;
+  const examdate = document.getElementById("date").value;
+  const examtime = document.getElementById("time").value;
+  const campusname = document.querySelector('input[name="location"]:checked')?.value;
+  const buildingname = document.getElementById("building").value;
+  const roomnumber = document.getElementById("room").value;
+  //const facultyID = document.getElementById("facultyID").value;
+  //const capacity = document.getElementById("capacity").value;
+
+  // Validate input fields
+  if (!examname || !examdate || !examtime || !campusname || !buildingname || !roomnumber) {
+    alert("Please fill all the required fields.");
+    return;
+  }
+
+  try {
+    const response = await fetch("http://127.0.0.1:5000/create_exam", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        examname,
+        examdate,
+        examtime,
+        campusname,
+        buildingname,
+        roomnumber
+      })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      document.getElementById("responseMessage").innerText = data.message;
+      document.getElementById("responseMessage").style.color = "green";
+    } else {
+      document.getElementById("responseMessage").innerText = data.error;
+      document.getElementById("responseMessage").style.color = "red";
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    document.getElementById("responseMessage").innerText = "An error occurred. Please try again.";
+    document.getElementById("responseMessage").style.color = "red";
+  }
+}
+
+
+function handleCreateExam(e) {
+  e.preventDefault();
+  createExam();
+}
