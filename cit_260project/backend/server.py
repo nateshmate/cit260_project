@@ -36,6 +36,7 @@ def create_account():
     role = data.get("role")
     username = data.get("username")
     password = data.get("password")
+    nshe_number = username[:10]
 
     if not all([first_name, last_name, role, username, password]):
         return jsonify({"error": "All fields are required"}), 400
@@ -62,22 +63,26 @@ def create_account():
                 return jsonify({"error": "Account already exists"}), 400
 
             # Insert new account into authentication table
-            sql = """INSERT INTO authentication (firstname, lastname, email, password, role)
-                     VALUES (%s, %s, %s, %s, %s)"""
-            cursor.execute(sql, (first_name, last_name, username, password, role))
+            sql_auth = """INSERT INTO authentication (email, password, role)
+                     VALUES (%s, %s, %s)"""
+            cursor.execute(sql_auth, (username, password, role))
             conn.commit()
+
+            # Insert new account into authentication table
+            authentication_id = cursor.lastrowid
 
             # Insert new account into student or faculty table based on role
             if role == 'student':
                 # Insert into student table
-                sql = """INSERT INTO student (firstname, lastname) VALUES (%s, %s)"""
-                cursor.execute(sql, (first_name, last_name))
+                sql_student = """INSERT INTO student (firstname, lastname, email, NSHENumber, authenticationID) 
+                VALUES (%s, %s, %s, %s, %s)"""
+                cursor.execute(sql_student, (first_name, last_name, username, nshe_number, authentication_id))
                 conn.commit()
 
             elif role == 'faculty':
                 # Insert into faculty table
-                sql = """INSERT INTO faculty (firstname, lastname) VALUES (%s, %s)"""
-                cursor.execute(sql, (first_name, last_name))
+                sql_faculty = """INSERT INTO faculty (firstname, lastname, email) VALUES (%s, %s, %s)"""
+                cursor.execute(sql_faculty, (first_name, last_name, username))
                 conn.commit()
 
 
@@ -89,18 +94,6 @@ def create_account():
         if conn:
             conn.close()
 
-    '''
-    if username in accounts:
-        return jsonify({"error": "Account already exists"}), 400
-
-    accounts[username] = {
-        'first_name': first_name,
-        'last_name': last_name,
-        'role': role,
-        'password': password
-    }
-    return jsonify({"message": f"Account created successfully for {first_name} {last_name}"}), 201
-    '''
 @app.route('/login', methods=['POST'])
 def login():
     data = request.json
@@ -115,12 +108,27 @@ def login():
             user = cursor.fetchone()
 
             if user and user['password'] == password:
-                return jsonify({
-                    "message": f"Welcome, {user['firstname']}!",
-                    "first_name": user['firstname'],
-                    "last_name": user['lastname'],
-                    "role": user['role']
-                }), 200
+                if role == 'student':
+                    cursor.execute("SELECT * FROM student WHERE email = %s", (username,))
+                    student = cursor.fetchone()
+                    if student:
+                        return jsonify({
+                            "message": f"Welcome, {student['firstname']}!",
+                            "first_name": student['firstname'],
+                            "last_name": student['lastname'],
+                            "role": role
+                        }), 200
+                elif role == 'faculty':
+                    cursor.execute("SELECT * FROM faculty WHERE email = %s", (username,))
+                    faculty = cursor.fetchone()
+                    if faculty:
+                        return jsonify({
+                            "message": f"Welcome, {faculty['firstname']}!",
+                            "first_name": faculty['firstname'],
+                            "last_name": faculty['lastname'],
+                            "role": role
+                        }), 200
+
             else:
                 return jsonify({"error": "Invalid credentials"}), 401
     except Exception as e:
@@ -129,16 +137,65 @@ def login():
         if conn:
             conn.close()
 
-    '''
-    if username in accounts and accounts[username]['role'] == role and accounts[username]['password'] == password:
-        return jsonify({
-            "message": f"Welcome, {accounts[username]['first_name']}!",
-            "first_name": accounts[username]['first_name'],
-            "last_name": accounts[username]['last_name'],
-            "role": role  
-        }), 200
-    return jsonify({"error": "Invalid credentials"}), 401
-    '''
+@app.route('/create_exam', methods=['POST'])
+def create_exam():
+    data = request.json
+    examname = data.get("examname")
+    examdate = data.get("examdate")
+    examtime = data.get("examtime")
+    campusname = data.get("campusname")
+    buildingname = data.get("buildingname")
+    roomnumber = data.get("roomnumber")
+    #facultyID = data.get("facultyID")  
+    #capacity = data.get("capacity")    
+
+    if not all([examname, campusname, buildingname, roomnumber, examdate, examtime]):
+        return jsonify({"error": "All fields are required"}), 400
+
+    conn = None
+    try:
+        conn = get_connection()
+        with conn.cursor() as cursor:
+            # Find locationID
+            sql_find_location = """
+                SELECT locationID FROM location
+                WHERE campusname = %s AND buildingname = %s AND roomnumber = %s
+            """
+            cursor.execute(sql_find_location, (campusname, buildingname, roomnumber))
+            location = cursor.fetchone()
+
+            if location:
+                locationID = location['locationID']
+            else:
+                # Insert new location
+                sql_insert_location = """
+                    INSERT INTO location (campusname, buildingname, roomnumber)
+                    VALUES (%s, %s, %s)
+                """
+                cursor.execute(sql_insert_location, (campusname, buildingname, roomnumber))
+                conn.commit()
+
+                # Get the last inserted locationID
+                locationID = cursor.lastrowid  
+
+            # Insert exam
+            sql_insert_exam = """
+                INSERT INTO exam (examname, examdate, examtime, locationID)
+                VALUES (%s, %s, %s, %s)
+            """
+            cursor.execute(sql_insert_exam, (examname, examdate, examtime, locationID))
+            conn.commit()
+
+        return jsonify({"message": "Exam created successfully"}), 201
+
+    except Exception as e:
+        print(e)
+        return jsonify({"error": "Failed to create exam"}), 500
+
+    finally:
+        if conn:
+            conn.close()
+
 
 
 if __name__ == '__main__':
