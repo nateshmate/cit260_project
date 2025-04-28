@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exam Registration Confirmation</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #eef2f3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    header {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      width: 100%;
+      padding: 15px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .btn {
+      background-color: rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.3s ease;
+    }
+    .btn:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+    .container {
+      width: 90%;
+      max-width: 800px;
+      margin-top: 40px;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .success-banner {
+      background-color: #d4edda;
+      color: #155724;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: bold;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      text-align: left;
+      padding: 12px 16px;
+      border-bottom: 1px solid #eee;
+      font-size: 15px;
+    }
+    th {
+      font-weight: bold;
+      color: #888;
+    }
+    .cancel-btn {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .cancel-btn:hover {
+      background-color: #c82333;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">Registration Confirmations</div>
+    <button class="btn" onclick="window.location.href='studentdashboard.html'">Return to Dashboard</button>
+  </header>
+
+  <div class="container">
+
+    <h2>My Registered Exams</h2>
+
+    <table id="confirmationTable">
+      <thead>
+        <tr>
+          <th>Exam</th>
+          <th>Campus</th>
+          <th>Building</th>
+          <th>Room</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Exam entries will populate here -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    async function loadRegistrations() {
+      const container = document.querySelector(".container");
+      let successBanner = document.querySelector(".success-banner");
+      if (successBanner) {
+        successBanner.remove();
+      }
+
+      const table = document.getElementById("confirmationTable").querySelector("tbody");
+      table.innerHTML = "";
+
+      try {
+        const response = await fetch("/student/registrations");
+        const data = await response.json();
+
+        if (!data.length) {
+          table.innerHTML = `<tr><td colspan="7" style="text-align:center;">No exams currently registered.</td></tr>`;
+          return;
+        }
+
+        const banner = document.createElement("div");
+        banner.className = "success-banner";
+        banner.textContent = "✅ You have successfully registered for your exam(s)!";
+        container.insertBefore(banner, container.children[0]);
+
+        data.forEach((exam) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${exam.Exam_Name}</td>
+            <td>${exam.Campus_Name}</td>
+            <td>${exam.Building_Name}</td>
+            <td>${exam.Room_Number}</td>
+            <td>${exam.Date}</td>
+            <td>${exam.Exam_time}</td>
+            <td><button class="cancel-btn" onclick="cancelRegistration('${exam.Registration_ID}')">Cancel</button></td>
+          `;
+          table.appendChild(row);
+        });
+      } catch (error) {
+        console.error("Error loading registrations:", error);
+        table.innerHTML = `<tr><td colspan="7" style="text-align:center;">Failed to load data.</td></tr>`;
+      }
+    }
+
+    async function cancelRegistration(id) {
+      if (confirm("Are you sure you want to cancel this registration?")) {
+        try {
+          await fetch(`/student/registrations/${id}`, { method: "DELETE" });
+          loadRegistrations();
+        } catch (error) {
+          alert("Failed to cancel registration.");
+          console.error(error);
+        }
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", loadRegistrations);
+  </script>
+
+</body>
+</html>
