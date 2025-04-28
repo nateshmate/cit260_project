@@ -5,77 +5,129 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Faculty Dashboard</title>
   <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: Arial, sans-serif;
-      margin: 0;
-      background-color: #f4f4f4;
+      background-color: #eef2f3;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 20px;
     }
-    .dashboard-container {
-      background: white;
-      padding: 30px;
-      margin-top: 50px;
-      border-radius: 12px;
-      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
-      width: 90%;
-      max-width: 800px;
-      text-align: center;
-    }
-    h1 {
-      color: #333;
-    }
-    p {
-      font-size: 18px;
-      color: #555;
-    }
-    .action-links {
-      margin-top: 30px;
+    header {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      width: 100%;
+      padding: 15px 40px;
       display: flex;
-      flex-direction: column;
-      gap: 15px;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
-    .action-links a {
-      display: inline-block;
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .user-box {
+      position: relative;
+      cursor: pointer;
+      padding: 10px;
+      background-color: rgba(255,255,255,0.2);
+      border-radius: 8px;
+      transition: 0.3s ease;
+    }
+    .user-box:hover { background-color: rgba(255,255,255,0.3); }
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 45px;
+      right: 0;
+      background-color: white;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      min-width: 180px;
+      border-radius: 5px;
+      z-index: 1;
+    }
+    .dropdown-content p { font-size: 14px; margin: 10px; font-weight: bold; }
+    .dropdown-content a, .dropdown-content button {
+      display: block;
+      padding: 10px;
+      font-size: 16px;
+      text-decoration: none;
+      color: black;
+      border-top: 1px solid #eee;
+      background: none;
+      cursor: pointer;
+      text-align: left;
+    }
+    .dropdown-content a:hover, .dropdown-content button:hover { background-color: #f1f1f1; }
+
+    .button-container {
+      margin-top: 40px;
+      display: flex;
+      gap: 20px;
+    }
+    .button-container a {
       padding: 12px 24px;
-      background-color: #007bff;
+      background-color: #667eea;
       color: white;
       text-decoration: none;
       border-radius: 8px;
       font-size: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-    .action-links a:hover {
-      background-color: #0056b3;
+    .button-container a:hover {
+      background-color: #5a62d4;
     }
-    button {
-      margin-top: 30px;
-      padding: 12px 24px;
-      font-size: 16px;
-      background-color: #dc3545;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
+
+    .table-container {
+      margin-top: 40px;
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      width: 90%;
+      max-width: 1000px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-    button:hover {
-      background-color: #c82333;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      text-align: left;
+      padding: 12px 16px;
+      border-bottom: 1px solid #eee;
+    }
+    th {
+      color: #888;
+      font-weight: 600;
     }
   </style>
 </head>
 <body>
-
-  <div class="dashboard-container">
-    <h1 id="facultyWelcome">Welcome, Faculty!</h1>
-    <p>You can review and manage student exam registrations here.</p>
-
-    <div class="action-links">
-      <a href="create_exam.html">Create an Exam</a>
-      <a href="student_report.html">Run Student Report</a>
+  <header>
+    <div class="logo">Exam Dashboard</div>
+    <div class="user-box" onclick="toggleDropdown()">
+      <span class="user-info" id="facultyWelcome">Faculty</span>
+      <div id="userDropdown" class="dropdown-content">
+        <p id="dropdownGreeting">Hello!</p>
+        <a href="create_exam.html">Create Exam</a>
+        <a href="student_report.html">Student Report</a>
+        <button onclick="logout()">Logout</button>
+      </div>
     </div>
+  </header>
 
-    <button onclick="logout()">Logout</button>
+  <div class="button-container">
+    <a href="create_exam.html">Create Exam</a>
+    <a href="student_report.html">Student Report</a>
+  </div>
+
+  <div class="table-container">
+    <h2>Current Exams</h2>
+    <div id="examTableContainer">
+      <p>Loading exams...</p>
+    </div>
   </div>
 
   <script>
@@ -84,15 +136,75 @@
       const lastName = localStorage.getItem("last_name");
 
       if (firstName && lastName) {
-        document.getElementById("facultyWelcome").innerText = `Welcome, ${firstName} ${lastName}!`;
+        document.getElementById("facultyWelcome").innerText = `${firstName} ${lastName} (Faculty)`;
+        document.getElementById("dropdownGreeting").innerText = `Hello, ${firstName}!`;
       }
+
+      fetch("/faculty/exams")
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById("examTableContainer");
+          if (!data || data.length === 0) {
+            container.innerHTML = "<p>No Exams Created</p>";
+            return;
+          }
+
+          const table = document.createElement("table");
+          table.innerHTML = `
+            <thead>
+              <tr>
+                <th>Exam_ID</th>
+                <th>Exam_Name</th>
+                <th>Date</th>
+                <th>Exam_time</th>
+                <th>Capacity</th>
+                <th>Current_count</th>
+                <th>Location_ID</th>
+                <th>Faculty_ID</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${data.map(exam => `
+                <tr>
+                  <td>${exam.Exam_ID}</td>
+                  <td>${exam.Exam_Name}</td>
+                  <td>${exam.Date}</td>
+                  <td>${exam.Exam_time}</td>
+                  <td>${exam.Capacity}</td>
+                  <td>${exam.Current_count}</td>
+                  <td>${exam.Location_ID}</td>
+                  <td>${exam.Faculty_ID}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          `;
+          container.innerHTML = "";
+          container.appendChild(table);
+        })
+        .catch(err => {
+          console.error("Error loading exams", err);
+          document.getElementById("examTableContainer").innerHTML = "<p>Error loading exams</p>";
+        });
     });
 
     function logout() {
       localStorage.clear();
       window.location.href = "login.html";
     }
-  </script>
 
+    function toggleDropdown() {
+      const dropdown = document.getElementById("userDropdown");
+      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    }
+
+    window.onclick = function (e) {
+      if (!e.target.closest(".user-box")) {
+        const dropdown = document.getElementById("userDropdown");
+        if (dropdown && dropdown.style.display === "block") {
+          dropdown.style.display = "none";
+        }
+      }
+    }
+  </script>
 </body>
 </html>
