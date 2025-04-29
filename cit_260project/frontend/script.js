@@ -112,3 +112,106 @@ function handleCreateExam(e) {
   e.preventDefault();
   createExam();
 }
+
+let examsMap = {};
+
+async function loadExams() {
+  try {
+    const response = await fetch("http://127.0.0.1:5000/get_exams");
+    const exams = await response.json();
+    const examSelect = document.getElementById("Exam_Name");
+    if (!examSelect) return;
+
+    examSelect.innerHTML = '<option value="">Select an exam</option>';
+    exams.forEach(exam => {
+      examsMap[exam.examID] = exam;
+      const option = document.createElement("option");
+      option.value = exam.examID;
+      option.textContent = exam.examname;
+      examSelect.appendChild(option);
+    });
+  } catch (err) {
+    console.error("Failed to load exams:", err);
+  }
+}
+
+function populateStudentInfo() {
+  const firstName = localStorage.getItem("first_name") || "";
+  const lastName = localStorage.getItem("last_name") || "";
+  const email = localStorage.getItem("email") || "";
+
+  const fullNameField = document.getElementById("Full_Name");
+  const emailField = document.getElementById("Email");
+
+  if (fullNameField) fullNameField.value = `${firstName} ${lastName}`;
+  if (emailField) emailField.value = email;
+
+  const regDate = document.getElementById("Reg_Date");
+  if (regDate) regDate.value = new Date().toISOString().split("T")[0];
+}
+
+function handleExamChange() {
+  const examSelect = document.getElementById("Exam_Name");
+  if (!examSelect) return;
+
+  examSelect.addEventListener("change", function () {
+    const selectedExam = examsMap[this.value];
+    const detailsBox = document.getElementById("examDetails");
+
+    if (selectedExam) {
+      document.getElementById("Exam_ID").value = selectedExam.examID;
+      document.getElementById("examCampus").textContent = selectedExam.campusname;
+      document.getElementById("examBuilding").textContent = selectedExam.buildingname;
+      document.getElementById("examRoom").textContent = selectedExam.roomnumber;
+      document.getElementById("examDate").textContent = selectedExam.examdate;
+      document.getElementById("examTime").textContent = selectedExam.examtime;
+      detailsBox.style.display = "block";
+    } else {
+      detailsBox.style.display = "none";
+    }
+  });
+}
+
+function setupExamFormSubmission() {
+  const form = document.getElementById("examForm");
+  if (!form) return;
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const payload = {
+      Registration_ID: document.getElementById("Registration_ID").value,
+      Student_ID: document.getElementById("Student_ID").value,
+      Exam_ID: document.getElementById("Exam_ID").value,
+      Reg_Date: document.getElementById("Reg_Date").value
+    };
+
+    try {
+      const response = await fetch("http://127.0.0.1:5000/register_exam", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        alert("Registration successful!");
+        window.location.href = "studentdashboard.html";
+      } else {
+        alert("Registration failed: " + result.error);
+      }
+    } catch (err) {
+      console.error("Error during registration:", err);
+      alert("An error occurred while registering.");
+    }
+  });
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  if (document.getElementById("examForm")) {
+    populateStudentInfo();
+    loadExams();
+    handleExamChange();
+    setupExamFormSubmission();
+  }
+});
