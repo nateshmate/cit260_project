@@ -196,6 +196,27 @@ def create_exam():
         if conn:
             conn.close()
 
+@app.route('/get_exams', methods=['GET'])
+def get_exams():
+    conn = None
+    try:
+        conn = get_connection()
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                SELECT e.examID, e.examname, e.examdate, e.examtime,
+                       l.campusname, l.buildingname, l.roomnumber
+                FROM exam e
+                JOIN location l ON e.locationID = l.locationID
+            """)
+            exams = cursor.fetchall()
+            return jsonify(exams), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if conn:
+            conn.close()
+
+
 
 
 if __name__ == '__main__':
