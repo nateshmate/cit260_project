@@ -4,12 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Register For Exam</title>
+  <script defer src="script.js"></script>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: Arial, sans-serif;
       background-color: #eef2f3;
@@ -40,8 +37,6 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
-      white-space: nowrap;
     }
     .back-btn:hover {
       background-color: rgba(255, 255, 255, 0.3);
@@ -74,16 +69,12 @@
       border-radius: 5px;
       font-size: 16px;
     }
-    .radio-group {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 10px;
-      gap: 10px;
-    }
-    .radio-option {
-      display: flex;
-      align-items: center;
-      gap: 6px;
+    #examDetails {
+      display: none;
+      margin-top: 20px;
+      padding: 10px;
+      background: #f8f8f8;
+      border-radius: 8px;
     }
     button[type="submit"] {
       background-color: #007bff;
@@ -95,7 +86,6 @@
       border-radius: 8px;
       font-size: 16px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
     }
     button[type="submit"]:hover {
       background-color: #0056b3;
@@ -113,121 +103,33 @@
     <h1>Register Now</h1>
 
     <form id="examForm">
-      <input type="hidden" id="Registration_ID" name="Registration_ID" />
-      <input type="hidden" id="Student_ID" name="Student_ID" />
-      <input type="hidden" id="Exam_ID" name="Exam_ID" />
-      <input type="hidden" id="Reg_Date" name="Reg_Date" />
+      <input type="hidden" id="Registration_ID" />
+      <input type="hidden" id="Student_ID" />
+      <input type="hidden" id="Exam_ID" />
+      <input type="hidden" id="Reg_Date" />
 
       <label for="Full_Name">Full Name</label>
-      <input type="text" id="Full_Name" name="Full_Name" required />
+      <input type="text" id="Full_Name" name="Full_Name" readonly required />
 
       <label for="Email">Email</label>
-      <input type="email" id="Email" name="Email" required />
-
-      <label for="Class">Class</label>
-      <select id="Class" name="Class" required>
-        <option value="">Select a class</option>
-      </select>
+      <input type="email" id="Email" name="Email" readonly required />
 
       <label for="Exam_Name">Exam</label>
       <select id="Exam_Name" name="Exam_Name" required>
-        <option value="">Select an exam</option>
+        <option value="">Loading exams...</option>
       </select>
 
-      <label>Campus Location</label>
-      <div class="radio-group">
-        <label class="radio-option"><input type="radio" name="Campus_Name" value="Henderson" required /> Henderson</label>
-        <label class="radio-option"><input type="radio" name="Campus_Name" value="North Las Vegas" /> North Las Vegas</label>
-        <label class="radio-option"><input type="radio" name="Campus_Name" value="West Charleston" /> West Charleston</label>
+      <div id="examDetails">
+        <p><strong>Location:</strong> <span id="examCampus"></span></p>
+        <p><strong>Building:</strong> <span id="examBuilding"></span></p>
+        <p><strong>Room:</strong> <span id="examRoom"></span></p>
+        <p><strong>Date:</strong> <span id="examDate"></span></p>
+        <p><strong>Time:</strong> <span id="examTime"></span></p>
       </div>
-
-      <label for="Building_Name">Building</label>
-      <select id="Building_Name" name="Building_Name" required>
-        <option value="">Select Building</option>
-      </select>
-
-      <label for="Room_Number">Room number</label>
-      <select id="Room_Number" name="Room_Number" required>
-        <option value="">Select Room number</option>
-      </select>
-
-      <label for="Date">Date</label>
-      <input type="date" id="Date" name="Date" required />
-
-      <label for="Exam_time">Time</label>
-      <select id="Exam_time" name="Exam_time" required>
-        <option value="">Select a time</option>
-        <option value="09:00 AM">09:00 AM</option>
-        <option value="09:30 AM">09:30 AM</option>
-        <option value="10:00 AM">10:00 AM</option>
-        <option value="10:30 AM">10:30 AM</option>
-        <option value="11:00 AM">11:00 AM</option>
-        <option value="11:30 AM">11:30 AM</option>
-        <option value="12:00 PM">12:00 PM</option>
-        <option value="12:30 PM">12:30 PM</option>
-        <option value="01:00 PM">01:00 PM</option>
-        <option value="01:30 PM">01:30 PM</option>
-        <option value="02:00 PM">02:00 PM</option>
-        <option value="02:30 PM">02:30 PM</option>
-        <option value="03:00 PM">03:00 PM</option>
-        <option value="03:30 PM">03:30 PM</option>
-        <option value="04:00 PM">04:00 PM</option>
-      </select>
 
       <button type="submit">Register for Exam</button>
     </form>
   </div>
-
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const firstName = localStorage.getItem("first_name") || "";
-      const lastName = localStorage.getItem("last_name") || "";
-      const email = localStorage.getItem("email") || "";
-
-      document.getElementById("Full_Name").value = `${firstName} ${lastName}`;
-      document.getElementById("Email").value = email;
-
-      document.getElementById("Student_ID").value = localStorage.getItem("student_id") || "";
-      document.getElementById("Reg_Date").value = new Date().toISOString().split("T")[0];
-
-      document.getElementById("Exam_Name").addEventListener("change", function () {
-        const selected = this.options[this.selectedIndex];
-        document.getElementById("Exam_ID").value = selected.getAttribute("data-id") || "";
-      });
-
-      document.getElementById("examForm").addEventListener("submit", async function (e) {
-        e.preventDefault();
-
-        const formData = {
-          Registration_ID: document.getElementById("Registration_ID").value,
-          Student_ID: document.getElementById("Student_ID").value,
-          Exam_ID: document.getElementById("Exam_ID").value,
-          Reg_Date: document.getElementById("Reg_Date").value
-        };
-
-        try {
-          const response = await fetch("/register_exam", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(formData)
-          });
-
-          const result = await response.json();
-          if (response.ok) {
-            alert("Registration successful!");
-            window.location.href = "studentdashboard.html";
-          } else {
-            alert("Registration failed: " + result.error);
-          }
-        } catch (err) {
-          console.error("Error:", err);
-          alert("An error occurred while registering.");
-        }
-      });
-    });
-  </script>
 
 </body>
 </html>
