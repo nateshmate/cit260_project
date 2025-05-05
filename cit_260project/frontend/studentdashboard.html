@@ -67,8 +67,22 @@
     function loadExamData() {
       const examListDiv = document.getElementById("examList");
 
+      function formatDate(dateString) {
+        const date = new Date(dateString);
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const month = monthNames[date.getUTCMonth()];
+        const day = date.getUTCDate();
+        const year = date.getUTCFullYear();
+        return `${month} ${day}, ${year}`;
+      }
+
+
+
       try {
-        fetch("/student/exams")
+        const email = localStorage.getItem("email");
+        fetch(`http://127.0.0.1:5000/student/registrations?email=${email}`)
+
           .then(response => {
             if (!response.ok) throw new Error("Network response was not ok");
             return response.json();
@@ -83,7 +97,7 @@
                 item.className = "exam-item";
                 item.innerHTML = `
                   <strong>Exam:</strong> ${exam.Exam_Name || "Unknown"}<br>
-                  <strong>Date:</strong> ${exam.Date || "TBD"}<br>
+                  <strong>Date:</strong> ${formatDate(exam.Date) || "TBD"}<br>
                   <strong>Time:</strong> ${exam.Exam_time || "TBD"}<br>
                   <strong>Location:</strong> ${(exam.Campus_Name || "") + (exam.Building_Name ? ", " + exam.Building_Name : "") + (exam.Room_Number ? " " + exam.Room_Number : "")}
                 `;
