@@ -62,12 +62,19 @@ async function login() {
 
 
 async function createExam() {
+  const email = localStorage.getItem("email");
+  if (!email) {
+    alert("User not logged in.");
+    return;
+  }
+
   const examname = document.getElementById("exam").value;
   const examdate = document.getElementById("date").value;
   const examtime = document.getElementById("time").value;
   const campusname = document.querySelector('input[name="location"]:checked')?.value;
   const buildingname = document.getElementById("building").value;
   const roomnumber = document.getElementById("room").value;
+  
   //const facultyID = document.getElementById("facultyID").value;
   //const capacity = document.getElementById("capacity").value;
 
@@ -78,6 +85,7 @@ async function createExam() {
   }
 
   try {
+    
     const response = await fetch("http://127.0.0.1:5000/create_exam", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -87,7 +95,8 @@ async function createExam() {
         examtime,
         campusname,
         buildingname,
-        roomnumber
+        roomnumber,
+        email
       })
     });
 
@@ -117,7 +126,7 @@ let examsMap = {};
 
 async function loadExams() {
   try {
-    const response = await fetch("http://127.0.0.1:5000/get_exams");
+    const response = await fetch("http://127.0.0.1:5000/faculty/exams");
     const exams = await response.json();
     const examSelect = document.getElementById("Exam_Name");
     if (!examSelect) return;
@@ -180,11 +189,11 @@ function setupExamFormSubmission() {
     e.preventDefault();
 
     const payload = {
-      Registration_ID: document.getElementById("Registration_ID").value,
-      Student_ID: document.getElementById("Student_ID").value,
+      email: document.getElementById("Email").value,
       Exam_ID: document.getElementById("Exam_ID").value,
       Reg_Date: document.getElementById("Reg_Date").value
     };
+    
 
     try {
       const response = await fetch("http://127.0.0.1:5000/register_exam", {
