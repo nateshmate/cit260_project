@@ -139,6 +139,7 @@
         document.getElementById("facultyWelcome").innerText = `${firstName} ${lastName} (Faculty)`;
         document.getElementById("dropdownGreeting").innerText = `Hello, ${firstName}!`;
       }
+      
       // Function to format date
       function formatDate(dateString) {
         const date = new Date(dateString);
@@ -148,6 +149,18 @@
         const day = date.getUTCDate();
         const year = date.getUTCFullYear();
         return `${month} ${day}, ${year}`;
+      }
+
+      // Function to format time to 12-hour format
+      function formatTime12h(time24) {
+        const [hour, minute] = time24.split(":");
+        const date = new Date();
+        date.setHours(parseInt(hour), parseInt(minute));
+        return date.toLocaleTimeString("en-US", {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true
+        });
       }
 
 
@@ -180,7 +193,7 @@
                   <td>${exam.examid}</td>
                   <td>${exam.examname}</td>
                   <td>${formatDate(exam.examdate)}</td>
-                  <td>${exam.examtime}</td>
+                  <td>${formatTime12h(exam.examtime)}</td>
                   <td>${exam.capacity || "N/A"}</td>
                   <td>${exam.currentCount || 0}</td>
                   <td>${exam.campusname}, ${exam.buildingname} ${exam.roomnumber}</td>
