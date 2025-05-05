@@ -139,10 +139,26 @@ def login():
 
 @app.route('/create_exam', methods=['POST'])
 def create_exam():
+
+    from datetime import datetime
+
+    def normalize_time(time_str):
+        try:
+            # if time is "HH"MM AM/PM"
+            t = datetime.strptime(time_str, "%I:%M %p")
+            return t.strftime("%H:%M")
+        except:
+            try:
+                # if time is "HH:MM"
+                t = datetime.strptime(time_str, "%H:%M")
+                return t.strftime("%H:%M")
+            except:
+                return time_str  
+                
     data = request.json
     examname = data.get("examname")
     examdate = data.get("examdate")
-    examtime = data.get("examtime")
+    examtime = normalize_time(data.get("examtime"))
     campusname = data.get("campusname")
     buildingname = data.get("buildingname")
     roomnumber = data.get("roomnumber")
@@ -186,17 +202,17 @@ def create_exam():
 
                 # Get the last inserted locationID
                 locationID = cursor.lastrowid  
+            
+            # Check if an exam already exists at same time, date, location
+            cursor.execute("""
+                SELECT * FROM exam
+                WHERE examdate = %s AND examtime = %s AND locationID = %s
+            """, (examdate, examtime, locationID))
+            existing_exam = cursor.fetchone()
 
-                # Check if an exam already exists at same time, date, location
-                cursor.execute("""
-                    SELECT * FROM exam
-                    WHERE examname = %s AND examdate = %s AND examtime = %s AND locationID = %s
-                """, (examname, examdate, examtime, locationID))
-                existing_exam = cursor.fetchone()
-
-                if existing_exam:
-                    return jsonify({"error": "An exam with the same name, date, time, and location already exists."}), 409
-
+            if existing_exam:
+                return jsonify({"error": "An exam with the same name, date, time, and location already exists."}), 409
+            
             # Insert exam
             sql_insert_exam = """
                 INSERT INTO exam (examname, examdate, examtime, locationID, facultyID)
