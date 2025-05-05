@@ -132,7 +132,9 @@
       table.innerHTML = "";
 
       try {
-        const response = await fetch("/student/registrations");
+        const email = localStorage.getItem("email");
+        const response = await fetch(`http://127.0.0.1:5000/student/registrations?email=${email}`)
+        ;
         const data = await response.json();
 
         if (!data.length) {
@@ -144,6 +146,16 @@
         banner.className = "success-banner";
         banner.textContent = "✅ You have successfully registered for your exam(s)!";
         container.insertBefore(banner, container.children[0]);
+ 
+        function formatDate(dateString) {
+        const date = new Date(dateString);
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const month = monthNames[date.getUTCMonth()];
+        const day = date.getUTCDate();
+        const year = date.getUTCFullYear();
+        return `${month} ${day}, ${year}`;
+      }
 
         data.forEach((exam) => {
           const row = document.createElement("tr");
@@ -152,7 +164,7 @@
             <td>${exam.Campus_Name}</td>
             <td>${exam.Building_Name}</td>
             <td>${exam.Room_Number}</td>
-            <td>${exam.Date}</td>
+            <td>${formatDate(exam.Date)}</td>
             <td>${exam.Exam_time}</td>
             <td><button class="cancel-btn" onclick="cancelRegistration('${exam.Registration_ID}')">Cancel</button></td>
           `;
@@ -167,7 +179,7 @@
     async function cancelRegistration(id) {
       if (confirm("Are you sure you want to cancel this registration?")) {
         try {
-          await fetch(`/student/registrations/${id}`, { method: "DELETE" });
+          await fetch(`http://127.0.0.1:5000/student/registrations/${id}`, { method: "DELETE" });
           loadRegistrations();
         } catch (error) {
           alert("Failed to cancel registration.");
