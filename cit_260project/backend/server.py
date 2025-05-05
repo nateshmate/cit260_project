@@ -146,6 +146,8 @@ def create_exam():
     campusname = data.get("campusname")
     buildingname = data.get("buildingname")
     roomnumber = data.get("roomnumber")
+    faculty_email = data.get("email")
+    #print("Received email:", faculty_email)
     #facultyID = data.get("facultyID")  
     #capacity = data.get("capacity")    
 
@@ -156,6 +158,13 @@ def create_exam():
     try:
         conn = get_connection()
         with conn.cursor() as cursor:
+            # Find facultyID by email
+            cursor.execute("SELECT facultyID FROM faculty WHERE email = %s", (faculty_email,))
+            faculty = cursor.fetchone()
+            if not faculty:
+                return jsonify({"error": "Faculty not found"}), 404
+            facultyID = faculty["facultyID"]
+
             # Find locationID
             sql_find_location = """
                 SELECT locationID FROM location
@@ -178,12 +187,22 @@ def create_exam():
                 # Get the last inserted locationID
                 locationID = cursor.lastrowid  
 
+                # Check if an exam already exists at same time, date, location
+                cursor.execute("""
+                    SELECT * FROM exam
+                    WHERE examname = %s AND examdate = %s AND examtime = %s AND locationID = %s
+                """, (examname, examdate, examtime, locationID))
+                existing_exam = cursor.fetchone()
+
+                if existing_exam:
+                    return jsonify({"error": "An exam with the same name, date, time, and location already exists."}), 409
+
             # Insert exam
             sql_insert_exam = """
-                INSERT INTO exam (examname, examdate, examtime, locationID)
-                VALUES (%s, %s, %s, %s)
+                INSERT INTO exam (examname, examdate, examtime, locationID, facultyID)
+                VALUES (%s, %s, %s, %s, %s)
             """
-            cursor.execute(sql_insert_exam, (examname, examdate, examtime, locationID))
+            cursor.execute(sql_insert_exam, (examname, examdate, examtime, locationID, facultyID))
             conn.commit()
 
         return jsonify({"message": "Exam created successfully"}), 201
@@ -203,10 +222,16 @@ def get_exams():
         conn = get_connection()
         with conn.cursor() as cursor:
             cursor.execute("""
-                SELECT e.examID, e.examname, e.examdate, e.examtime,
-                       l.campusname, l.buildingname, l.roomnumber
+                SELECT e.examid, e.examname, e.examdate, e.examtime, e.capacity,
+                       COUNT(r.registrationID) AS currentCount,
+                       l.campusname, l.buildingname, l.roomnumber,
+                       f.firstname AS faculty_firstname,
+                       f.lastname AS faculty_lastname
                 FROM exam e
-                JOIN location l ON e.locationID = l.locationID
+                LEFT JOIN location l ON e.locationid = l.locationid
+                LEFT JOIN faculty f ON e.facultyid = f.facultyid
+                LEFT JOIN registration r ON e.examid = r.examid
+                GROUP BY e.examid
             """)
             exams = cursor.fetchall()
             return jsonify(exams), 200
@@ -217,7 +242,135 @@ def get_exams():
             conn.close()
 
 
+@app.route('/register_exam', methods=['POST'])
+def register_exam():
+    data = request.json
+    student_email = data.get("email") 
+    exam_id = data.get("Exam_ID")
+    reg_date = data.get("Reg_Date")
 
+    if not all([student_email, exam_id, reg_date]):
+        return jsonify({"error": "Missing data"}), 400
+
+    conn = None
+    try:
+        conn = get_connection()
+        with conn.cursor() as cursor:
+            # find studentID
+            cursor.execute("SELECT studentID FROM student WHERE email = %s", (student_email,))
+            student = cursor.fetchone()
+
+            if not student:
+                return jsonify({"error": "Student not found"}), 404
+
+            student_id = student["studentID"]
+
+            # Check if the exam exists
+            cursor.execute("SELECT * FROM registration WHERE studentID = %s AND examID = %s", (student_id, exam_id))
+            existing = cursor.fetchone()
+            if existing:
+                return jsonify({"error": "You have already registered for this exam"}), 400
+
+            # Insert registration
+            sql_insert = """
+                INSERT INTO registration (studentID, examID, regDate)
+                VALUES (%s, %s, %s)
+            """
+            cursor.execute(sql_insert, (student_id, exam_id, reg_date))
+            conn.commit()
+
+        return jsonify({"message": "Registration successful!"}), 201
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        if conn:
+            conn.close()
+
+@app.route('/student/registrations', methods=['GET'])
+def get_student_registrations():
+    email = request.args.get('email')
+    if not email:
+        return jsonify({"error": "Missing student email"}), 400
+
+    conn = None
+    try:
+        conn = get_connection()
+        with conn.cursor() as cursor:
+            sql = """
+                SELECT
+                    r.registrationID AS Registration_ID,
+                    e.examname AS Exam_Name,
+                    e.examdate AS Date,
+                    e.examtime AS Exam_time,
+                    l.campusname AS Campus_Name,
+                    l.buildingname AS Building_Name,
+                    l.roomnumber AS Room_Number
+                FROM registration r
+                JOIN exam e ON r.examID = e.examID
+                JOIN location l ON e.locationID = l.locationID
+                JOIN student s ON r.studentID = s.studentID
+                WHERE s.email = %s
+            """
+            cursor.execute(sql, (email,))
+            result = cursor.fetchall()
+            return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if conn:
+            conn.close()
+
+@app.route('/student/registrations/<int:registration_id>', methods=['DELETE'])
+def delete_registration(registration_id):
+    conn = None
+    try:
+        conn = get_connection()
+        with conn.cursor() as cursor:
+            cursor.execute("DELETE FROM registration WHERE registrationID = %s", (registration_id,))
+            conn.commit()
+            return jsonify({"message": "Registration deleted successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if conn:
+            conn.close()
+
+@app.route('/faculty/exams', methods=['GET'])
+def get_faculty_exams():
+    conn = None
+    try:
+        conn = get_connection()
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                SELECT
+                    e.examID AS examid,
+                    e.examname AS examname,
+                    e.examdate AS examdate,
+                    e.examtime  AS examtime,
+                    e.capacity AS capacity,
+                    (
+                        SELECT COUNT(*) FROM registration r
+                        WHERE r.examID = e.examID
+                    ) AS currentCount,
+                    l.campusname AS campusname,
+                    l.buildingname AS buildingname,
+                    l.roomnumber AS roomnumber,
+                    f.firstname AS faculty_firstname,
+                    f.lastname AS faculty_lastname       
+                FROM exam e
+                JOIN faculty f ON e.facultyID = f.facultyID
+                JOIN location l ON e.locationID = l.locationID
+                
+            """)
+            exams = cursor.fetchall()
+            return jsonify(exams), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if conn:
+            conn.close()
 
 if __name__ == '__main__':
     app.run(debug=True)
