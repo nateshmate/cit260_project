@@ -139,8 +139,19 @@
         document.getElementById("facultyWelcome").innerText = `${firstName} ${lastName} (Faculty)`;
         document.getElementById("dropdownGreeting").innerText = `Hello, ${firstName}!`;
       }
+      // Function to format date
+      function formatDate(dateString) {
+        const date = new Date(dateString);
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const month = monthNames[date.getUTCMonth()];
+        const day = date.getUTCDate();
+        const year = date.getUTCFullYear();
+        return `${month} ${day}, ${year}`;
+      }
 
-      fetch("/faculty/exams")
+
+      fetch("http://127.0.0.1:5000/get_exams")
         .then(res => res.json())
         .then(data => {
           const container = document.getElementById("examTableContainer");
@@ -153,27 +164,27 @@
           table.innerHTML = `
             <thead>
               <tr>
-                <th>Exam_ID</th>
-                <th>Exam_Name</th>
+                <th>ExamID</th>
+                <th>Exam Name</th>
                 <th>Date</th>
-                <th>Exam_time</th>
+                <th>Time</th>
                 <th>Capacity</th>
-                <th>Current_count</th>
-                <th>Location_ID</th>
-                <th>Faculty_ID</th>
+                <th>Current Count</th>
+                <th>Location</th>
+                <th>Faculty</th>
               </tr>
             </thead>
             <tbody>
               ${data.map(exam => `
                 <tr>
-                  <td>${exam.Exam_ID}</td>
-                  <td>${exam.Exam_Name}</td>
-                  <td>${exam.Date}</td>
-                  <td>${exam.Exam_time}</td>
-                  <td>${exam.Capacity}</td>
-                  <td>${exam.Current_count}</td>
-                  <td>${exam.Location_ID}</td>
-                  <td>${exam.Faculty_ID}</td>
+                  <td>${exam.examid}</td>
+                  <td>${exam.examname}</td>
+                  <td>${formatDate(exam.examdate)}</td>
+                  <td>${exam.examtime}</td>
+                  <td>${exam.capacity || "N/A"}</td>
+                  <td>${exam.currentCount || 0}</td>
+                  <td>${exam.campusname}, ${exam.buildingname} ${exam.roomnumber}</td>
+                  <td>${exam.faculty_firstname} ${exam.faculty_lastname}</td>
                 </tr>
               `).join('')}
             </tbody>
