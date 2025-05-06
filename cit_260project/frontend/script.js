@@ -133,9 +133,9 @@ async function loadExams() {
 
     examSelect.innerHTML = '<option value="">Select an exam</option>';
     exams.forEach(exam => {
-      examsMap[exam.examID] = exam;
+      examsMap[exam.examid] = exam;
       const option = document.createElement("option");
-      option.value = exam.examID;
+      option.value = exam.examid;
       option.textContent = exam.examname;
       examSelect.appendChild(option);
     });
@@ -168,7 +168,7 @@ function handleExamChange() {
     const detailsBox = document.getElementById("examDetails");
 
     if (selectedExam) {
-      document.getElementById("Exam_ID").value = selectedExam.examID;
+      document.getElementById("Exam_ID").value = selectedExam.examid;
       document.getElementById("examCampus").textContent = selectedExam.campusname;
       document.getElementById("examBuilding").textContent = selectedExam.buildingname;
       document.getElementById("examRoom").textContent = selectedExam.roomnumber;
