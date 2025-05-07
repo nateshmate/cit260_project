@@ -1,4 +1,3 @@
-
 async function createAccount() {
   const first_name = document.getElementById("firstName").value;
   const last_name = document.getElementById("lastName").value;
@@ -174,6 +173,7 @@ function handleExamChange() {
       document.getElementById("examRoom").textContent = selectedExam.roomnumber;
       document.getElementById("examDate").textContent = selectedExam.examdate;
       document.getElementById("examTime").textContent = selectedExam.examtime;
+      document.getElementById("examSeats").textContent = selectedExam.currentCount;
       detailsBox.style.display = "block";
     } else {
       detailsBox.style.display = "none";
