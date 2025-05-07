@@ -250,6 +250,8 @@ def get_exams():
                 GROUP BY e.examid
             """)
             exams = cursor.fetchall()
+            # Only return exams that are not full (currentCount < 20)
+            exams = [exam for exam in exams if exam['currentCount'] < 20]
             return jsonify(exams), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -304,6 +306,12 @@ def register_exam():
             existing = cursor.fetchone()
             if existing:
                 return jsonify({"error": "You have already registered for this exam"}), 400
+
+            # Check if exam has reached maximum capacity of 20
+            cursor.execute("SELECT COUNT(*) AS current_count FROM registration WHERE examID = %s", (exam_id,))
+            current_count_result = cursor.fetchone()
+            if current_count_result['current_count'] >= 20:
+                return jsonify({"error": "This exam has reached its maximum capacity of 20 students"}), 400
 
             # Insert registration
             sql_insert = """
@@ -364,6 +372,7 @@ def delete_registration(registration_id):
         with conn.cursor() as cursor:
             cursor.execute("DELETE FROM registration WHERE registrationID = %s", (registration_id,))
             conn.commit()
+            # No need to update current count, as it is dynamically calculated
             return jsonify({"message": "Registration deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
