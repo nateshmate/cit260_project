@@ -281,6 +281,24 @@ def register_exam():
 
             student_id = student["studentID"]
 
+            # Check if student already registered for 3 exams
+            cursor.execute("SELECT COUNT(*) AS exam_count FROM registration WHERE studentID = %s", (student_id,))
+            count_result = cursor.fetchone()
+            if count_result['exam_count'] >= 3:
+                return jsonify({"error": "You have already registered for the maximum of 3 exams"}), 400
+
+            # Check if student has already registered for this exam type
+            cursor.execute("""
+                SELECT e.examname FROM registration r
+                JOIN exam e ON r.examID = e.examID
+                WHERE r.studentID = %s AND e.examname = (
+                    SELECT examname FROM exam WHERE examID = %s
+                )
+            """, (student_id, exam_id))
+            existing_exam_type = cursor.fetchone()
+            if existing_exam_type:
+                return jsonify({"error": f"You have already registered for an exam of this type: {existing_exam_type['examname']}"}), 400
+
             # Check if the exam exists
             cursor.execute("SELECT * FROM registration WHERE studentID = %s AND examID = %s", (student_id, exam_id))
             existing = cursor.fetchone()
