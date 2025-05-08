@@ -22,7 +22,6 @@ async function createAccount() {
   }
 }
 
-
 async function login() {
   const role = document.getElementById("loginRole").value;
   const username = document.getElementById("loginEmail").value;
@@ -58,8 +57,6 @@ async function login() {
   }
 }
 
-
-
 async function createExam() {
   const email = localStorage.getItem("email");
   if (!email) {
@@ -73,18 +70,13 @@ async function createExam() {
   const campusname = document.querySelector('input[name="location"]:checked')?.value;
   const buildingname = document.getElementById("building").value;
   const roomnumber = document.getElementById("room").value;
-  
-  //const facultyID = document.getElementById("facultyID").value;
-  //const capacity = document.getElementById("capacity").value;
 
-  // Validate input fields
   if (!examname || !examdate || !examtime || !campusname || !buildingname || !roomnumber) {
     alert("Please fill all the required fields.");
     return;
   }
 
   try {
-    
     const response = await fetch("http://127.0.0.1:5000/create_exam", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -115,7 +107,6 @@ async function createExam() {
   }
 }
 
-
 function handleCreateExam(e) {
   e.preventDefault();
   createExam();
@@ -131,7 +122,11 @@ async function loadExams() {
     if (!examSelect) return;
 
     examSelect.innerHTML = '<option value="">Select an exam</option>';
-    exams.forEach(exam => {
+
+    // Filter out exams with full capacity (20/20)
+    const availableExams = exams.filter((exam) => exam.Capacity !== "20/20");
+
+    availableExams.forEach((exam) => {
       examsMap[exam.examid] = exam;
       const option = document.createElement("option");
       option.value = exam.examid;
@@ -193,7 +188,6 @@ function setupExamFormSubmission() {
       Exam_ID: document.getElementById("Exam_ID").value,
       Reg_Date: document.getElementById("Reg_Date").value
     };
-    
 
     try {
       const response = await fetch("http://127.0.0.1:5000/register_exam", {
