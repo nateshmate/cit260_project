@@ -20,8 +20,10 @@
     .dashboard-container { background: white; padding: 30px; margin-top: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); width: 90%; max-width: 800px; text-align: center; }
     h1 { color: #333; margin-bottom: 20px; }
     .exam-list { margin-top: 30px; text-align: left; }
-    .exam-item { background-color: #f9f9ff; margin-bottom: 15px; padding: 15px; border-left: 5px solid #667eea; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .exam-item { background-color: #f9f9ff; margin-bottom: 15px; padding: 15px; border-left: 5px solid #667eea; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
     .exam-item strong { display: block; margin-bottom: 5px; color: #333; }
+    .cancel-btn { background-color: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
+    .cancel-btn:hover { background-color: #c82333; }
     .register-btn { display: block; margin: 30px auto 0; padding: 12px 24px; font-size: 16px; background-color: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.3s ease; }
     .register-btn:hover { background-color: #0056b3; }
   </style>
@@ -77,12 +79,9 @@
         return `${month} ${day}, ${year}`;
       }
 
-
-
       try {
         const email = localStorage.getItem("email");
         fetch(`http://127.0.0.1:5000/student/registrations?email=${email}`)
-
           .then(response => {
             if (!response.ok) throw new Error("Network response was not ok");
             return response.json();
@@ -96,10 +95,13 @@
                 const item = document.createElement("div");
                 item.className = "exam-item";
                 item.innerHTML = `
-                  <strong>Exam:</strong> ${exam.Exam_Name || "Unknown"}<br>
-                  <strong>Date:</strong> ${formatDate(exam.Date) || "TBD"}<br>
-                  <strong>Time:</strong> ${exam.Exam_time || "TBD"}<br>
-                  <strong>Location:</strong> ${(exam.Campus_Name || "") + (exam.Building_Name ? ", " + exam.Building_Name : "") + (exam.Room_Number ? " " + exam.Room_Number : "")}
+                  <div>
+                    <strong>Exam:</strong> ${exam.Exam_Name || "Unknown"}<br>
+                    <strong>Date:</strong> ${formatDate(exam.Date) || "TBD"}<br>
+                    <strong>Time:</strong> ${exam.Exam_time || "TBD"}<br>
+                    <strong>Location:</strong> ${(exam.Campus_Name || "") + (exam.Building_Name ? ", " + exam.Building_Name : "") + (exam.Room_Number ? " " + exam.Room_Number : "")}
+                  </div>
+                  <button class="cancel-btn" onclick="cancelExam('${exam.Registration_ID}')">Cancel</button>
                 `;
                 examListDiv.appendChild(item);
               });
@@ -112,6 +114,23 @@
       } catch (error) {
         console.error("Unexpected error:", error);
         document.getElementById("examList").innerHTML = "<p>Unexpected error. Please refresh the page.</p>";
+      }
+    }
+
+    function cancelExam(registrationId) {
+      if (confirm("Are you sure you want to cancel this exam?")) {
+        fetch(`http://127.0.0.1:5000/student/registrations/${registrationId}`, {
+          method: "DELETE"
+        })
+          .then(response => {
+            if (!response.ok) throw new Error("Failed to cancel registration");
+            alert("Exam canceled successfully.");
+            loadExamData(); // Refresh the exam list
+          })
+          .catch(error => {
+            console.error("Error canceling exam:", error);
+            alert("Failed to cancel the exam. Please try again.");
+          });
       }
     }
 
