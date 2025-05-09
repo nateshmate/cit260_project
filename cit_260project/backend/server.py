@@ -415,5 +415,37 @@ def get_faculty_exams():
         if conn:
             conn.close()
 
+@app.route('/faculty/student_registrations', methods=['GET'])
+def get_faculty_student_registrations():
+    conn = None
+    try:
+        conn = get_connection()
+        with conn.cursor() as cursor:
+            sql = """
+                SELECT
+                    s.firstname AS student_firstname,
+                    s.lastname AS student_lastname,
+                    s.email AS student_email,
+                    e.examname,
+                    e.examdate,
+                    e.examtime,
+                    l.campusname,
+                    l.buildingname,
+                    l.roomnumber
+                FROM registration r
+                JOIN student s ON r.studentID = s.studentID
+                JOIN exam e ON r.examID = e.examID
+                JOIN location l ON e.locationID = l.locationID
+                ORDER BY e.examdate, e.examtime
+            """
+            cursor.execute(sql)
+            results = cursor.fetchall()
+            return jsonify(results), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if conn:
+            conn.close()
+
 if __name__ == '__main__':
     app.run(debug=True)
