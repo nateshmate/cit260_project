@@ -123,8 +123,8 @@ async function loadExams() {
 
     examSelect.innerHTML = '<option value="">Select an exam</option>';
 
-    // Filter out exams with full capacity (20/20)
-    const availableExams = exams.filter((exam) => exam.Capacity !== "20/20");
+    // Filter out exams with full capacity (currentCount >= 20)
+    const availableExams = exams.filter((exam) => parseInt(exam.currentCount) < 20);
 
     availableExams.forEach((exam) => {
       examsMap[exam.examid] = exam;
