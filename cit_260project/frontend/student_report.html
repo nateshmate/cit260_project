@@ -174,8 +174,8 @@
         const [studentID, firstName, lastName, examName, examDate, campusName, buildingName, roomNumber] = Array.from(row.children).map(cell => cell.innerText.toLowerCase());
         const matchesSearch = studentID.includes(search) || firstName.includes(search) || lastName.includes(search) || examName.includes(search);
         const matchesCampus = !campus || campusName.includes(campus);
-        const formatted = new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toLowerCase();
-        const matchesDate = !date || examDate.includes(formatted);
+        const examDateNormalized = new Date(examDate).toISOString().split('T')[0];
+        const matchesDate = !date || date === examDateNormalized;
         row.style.display = (matchesSearch && matchesCampus && matchesDate) ? "" : "none";
       });
     }
@@ -206,7 +206,7 @@
 
     window.addEventListener("DOMContentLoaded", async () => {
       try {
-        const res = await fetch("/api/student_registrations");
+        const res = await fetch("http://127.0.0.1:5000/faculty/student_registrations");
         const data = await res.json();
         const tbody = document.querySelector("#studentTable tbody");
         tbody.innerHTML = "";
@@ -214,14 +214,14 @@
         data.forEach(row => {
           const tr = document.createElement("tr");
           tr.innerHTML = `
-            <td>${row.Student_ID}</td>
-            <td>${row.First_Name}</td>
-            <td>${row.Last_Name}</td>
-            <td>${row.Exam_Name}</td>
-            <td>${row.Date}</td>
-            <td>${row.Campus_Name}</td>
-            <td>${row.Building_Name}</td>
-            <td>${row.Room_Number}</td>
+            <td></td>
+            <td>${row.student_firstname}</td>
+            <td>${row.student_lastname}</td>
+            <td>${row.examname}</td>
+            <td>${row.examdate}</td>
+            <td>${row.campusname}</td>
+            <td>${row.buildingname}</td>
+            <td>${row.roomnumber}</td>
           `;
           tbody.appendChild(tr);
         });
