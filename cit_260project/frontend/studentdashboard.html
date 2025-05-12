@@ -78,7 +78,19 @@
         const year = date.getUTCFullYear();
         return `${month} ${day}, ${year}`;
       }
-
+      
+      // Function to format time to 12-hour format
+      function formatTime12h(time24) {
+        const [hour, minute] = time24.split(":");
+        const date = new Date();
+        date.setHours(parseInt(hour), parseInt(minute));
+        return date.toLocaleTimeString("en-US", {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true
+        });
+      }
+      
       try {
         const email = localStorage.getItem("email");
         fetch(`http://127.0.0.1:5000/student/registrations?email=${email}`)
@@ -98,7 +110,7 @@
                   <div>
                     <strong>Exam:</strong> ${exam.Exam_Name || "Unknown"}<br>
                     <strong>Date:</strong> ${formatDate(exam.Date) || "TBD"}<br>
-                    <strong>Time:</strong> ${exam.Exam_time || "TBD"}<br>
+                    <strong>Time:</strong> ${formatTime12h(exam.Exam_time) || "TBD"}<br>
                     <strong>Location:</strong> ${(exam.Campus_Name || "") + (exam.Building_Name ? ", " + exam.Building_Name : "") + (exam.Room_Number ? " " + exam.Room_Number : "")}
                   </div>
                   <button class="cancel-btn" onclick="cancelExam('${exam.Registration_ID}')">Cancel</button>
