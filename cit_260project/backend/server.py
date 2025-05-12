@@ -215,10 +215,10 @@ def create_exam():
             
             # Insert exam
             sql_insert_exam = """
-                INSERT INTO exam (examname, examdate, examtime, locationID, facultyID)
-                VALUES (%s, %s, %s, %s, %s)
+                INSERT INTO exam (examname, examdate, examtime, locationID, facultyID, currentCount)
+                VALUES (%s, %s, %s, %s, %s, %s)
             """
-            cursor.execute(sql_insert_exam, (examname, examdate, examtime, locationID, facultyID))
+            cursor.execute(sql_insert_exam, (examname, examdate, examtime, locationID, facultyID, 0))
             conn.commit()
 
         return jsonify({"message": "Exam created successfully"}), 201
@@ -321,6 +321,15 @@ def register_exam():
             cursor.execute(sql_insert, (student_id, exam_id, reg_date))
             conn.commit()
 
+            # Update currentCount in exam table
+            cursor.execute("""
+                UPDATE exam
+                SET currentCount = currentCount + 1
+                WHERE examID = %s
+            """, (exam_id,))
+            conn.commit()
+
+
         return jsonify({"message": "Registration successful!"}), 201
 
     except Exception as e:
@@ -370,8 +379,25 @@ def delete_registration(registration_id):
     try:
         conn = get_connection()
         with conn.cursor() as cursor:
-            cursor.execute("DELETE FROM registration WHERE registrationID = %s", (registration_id,))
-            conn.commit()
+            
+            # Get examID before deleting
+            cursor.execute("SELECT examID FROM registration WHERE registrationID = %s", (registration_id,))
+            exam = cursor.fetchone()
+
+            if exam:
+                exam_id = exam['examID']
+
+                # Delete registration
+                cursor.execute("DELETE FROM registration WHERE registrationID = %s", (registration_id,))
+
+                # Decrease currentCount
+                cursor.execute("""
+                    UPDATE exam
+                    SET currentCount = CASE WHEN currentCount > 0 THEN currentCount - 1 ELSE 0 END
+                    WHERE examID = %s
+                """, (exam_id,))
+                
+                conn.commit()
             # No need to update current count, as it is dynamically calculated
             return jsonify({"message": "Registration deleted successfully"}), 200
     except Exception as e:
