@@ -1,3 +1,10 @@
+function formatTimeTo12Hour(timeString) {
+  const [hours, minutes] = timeString.split(":").map(Number);
+  const period = hours >= 12 ? "PM" : "AM";
+  const formattedHours = hours % 12 || 12; // Convert 0 to 12 for 12-hour format
+  return `${formattedHours}:${minutes.toString().padStart(2, "0")} ${period}`;
+}
+
 async function createAccount() {
   const first_name = document.getElementById("firstName").value;
   const last_name = document.getElementById("lastName").value;
@@ -167,7 +174,7 @@ function handleExamChange() {
       document.getElementById("examBuilding").textContent = selectedExam.buildingname;
       document.getElementById("examRoom").textContent = selectedExam.roomnumber;
       document.getElementById("examDate").textContent = selectedExam.examdate;
-      document.getElementById("examTime").textContent = selectedExam.examtime;
+      document.getElementById("examTime").textContent = formatTimeTo12Hour(selectedExam.examtime); // Convert to 12-hour format
       document.getElementById("examSeats").textContent = selectedExam.currentCount;
       detailsBox.style.display = "block";
     } else {
