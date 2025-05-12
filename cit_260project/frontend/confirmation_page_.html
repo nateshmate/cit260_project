@@ -155,7 +155,20 @@
         const day = date.getUTCDate();
         const year = date.getUTCFullYear();
         return `${month} ${day}, ${year}`;
-      }
+        }
+
+        // Function to format time to 12-hour format
+        function formatTime12h(time24) {
+          const [hour, minute] = time24.split(":");
+          const date = new Date();
+          date.setHours(parseInt(hour), parseInt(minute));
+          return date.toLocaleTimeString("en-US", {
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true
+          });
+        }
+
 
         data.forEach((exam) => {
           const row = document.createElement("tr");
@@ -165,7 +178,7 @@
             <td>${exam.Building_Name}</td>
             <td>${exam.Room_Number}</td>
             <td>${formatDate(exam.Date)}</td>
-            <td>${exam.Exam_time}</td>
+            <td>${formatTime12h(exam.Exam_time)}</td>
             <td><button class="cancel-btn" onclick="cancelRegistration('${exam.Registration_ID}')">Cancel</button></td>
           `;
           table.appendChild(row);
