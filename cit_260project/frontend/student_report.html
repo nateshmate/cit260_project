@@ -164,6 +164,18 @@
   </div>
 
   <script>
+
+    // Function to format date
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                          "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      const month = monthNames[date.getUTCMonth()];
+      const day = date.getUTCDate();
+      const year = date.getUTCFullYear();
+      return `${month} ${day}, ${year}`;
+    }
+    
     function applyFilters() {
       const search = document.getElementById("searchBar").value.toLowerCase();
       const campus = document.getElementById("campusFilter").value.toLowerCase();
@@ -218,7 +230,7 @@
             <td>${row.student_firstname}</td>
             <td>${row.student_lastname}</td>
             <td>${row.examname}</td>
-            <td>${row.examdate}</td>
+            <td>${formatDate(row.examdate)}</td>
             <td>${row.campusname}</td>
             <td>${row.buildingname}</td>
             <td>${row.roomnumber}</td>
